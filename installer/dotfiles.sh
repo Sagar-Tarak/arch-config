@@ -197,6 +197,51 @@ dotfiles::verify_links() {
     return 0
 }
 
+# @description Removes managed symlinks from target_dir that point back into
+#              source_dir. Files in target_dir that are NOT symlinks (user
+#              files, or files not managed by Forge) are left untouched.
+# @arg1 string source_dir Root of dotfile sources (default: DOTFILES_DIR)
+# @arg2 string target_dir Destination root (default: HOME/.config)
+# @exit 0 Always
+dotfiles::remove_links() {
+    local source_dir="${1:-${DOTFILES_DIR}}"
+    local target_dir="${2:-${HOME}/.config}"
+
+    if [[ ! -d "${source_dir}" ]]; then
+        log::warn "Dotfiles source directory not found: ${source_dir}" "DOTFILES"
+        return 0
+    fi
+
+    log::info "Removing dotfile symlinks from: ${target_dir}" "DOTFILES"
+
+    if [[ "${ARCH_CFG_DRY_RUN}" == "true" ]]; then
+        log::info "[DRY-RUN] Would remove symlinks from ${target_dir} that point into ${source_dir}" "DOTFILES"
+        return 0
+    fi
+
+    local rel_path
+    while IFS= read -r rel_path; do
+        local src="${source_dir}/${rel_path}"
+        local dst="${target_dir}/${rel_path}"
+
+        if [[ -L "${dst}" ]]; then
+            local actual_target
+            actual_target="$(readlink -f "${dst}" 2>/dev/null || true)"
+            local expected_target
+            expected_target="$(readlink -f "${src}" 2>/dev/null || true)"
+            if [[ "${actual_target}" == "${expected_target}" ]]; then
+                log::info "Removing symlink: ${dst}" "DOTFILES"
+                rm -f "${dst}"
+            else
+                log::debug "Skipping unmanaged symlink: ${dst}" "DOTFILES"
+            fi
+        fi
+    done < <(_dotfiles::walk_files "${source_dir}")
+
+    log::success "Dotfile symlinks removed." "DOTFILES"
+    return 0
+}
+
 # ==============================================================================
 # Internal helpers
 # ==============================================================================
