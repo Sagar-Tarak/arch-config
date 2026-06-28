@@ -71,6 +71,9 @@ starship
 # --- Editors ---
 neovim
 
+# --- Browser ---
+firefox
+
 # --- Fonts ---
 ttf-jetbrains-mono-nerd
 ttf-noto-nerd

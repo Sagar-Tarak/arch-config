@@ -16,8 +16,3 @@ hyprpicker            # not in official repos
 # --- Notification daemon ---
 swaync                # not in official repos
 
-# --- Editors ---
-visual-studio-code-bin # Microsoft binary; only available via AUR
-
-# --- Browser ---
-zen-browser           # not in official repos

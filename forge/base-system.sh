@@ -53,10 +53,9 @@ readonly -a FORGE_BASE_MODULES=(
 
     # 5. Editors
     "editor/nvim"          # Neovim with Lazy.nvim
-    "editor/vscode"        # Visual Studio Code
 
     # 6. Browser
-    "browser/zen"          # Zen Browser (Firefox fork)
+    "browser/firefox"      # Firefox
 
     # 7. Development baseline
     "workspace/git"        # Git + GitHub CLI
