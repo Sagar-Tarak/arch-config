@@ -1,22 +1,27 @@
 # ==============================================================================
-# AUR package list
-# Format: one package per line; lines starting with # are comments
-# Requires paru or yay to be installed first.
+# Forge — AUR package list
+# Format: one package per line; lines starting with # are comments.
+# Requires paru (bootstrapped first) to install.
 # ==============================================================================
 
-# --- AUR helper (bootstrapped separately) ---
+# --- AUR helper (bootstrapped before all other AUR packages) ---
 paru
 
-# --- Terminal emulator ---
-kitty
-
-# --- Node version manager ---
-nvm
+# --- Terminal ---
+ghostty
 
 # --- Hyprland extras ---
 hyprpicker
 hypridle
 hyprlock
+rofi-wayland
+swaync
 
-# --- Theme tooling ---
-gradience
+# --- Editors ---
+visual-studio-code-bin
+
+# --- Browser ---
+zen-browser
+
+# --- CLI utilities ---
+yq

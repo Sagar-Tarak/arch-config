@@ -1,61 +1,62 @@
 # ==============================================================================
-# pacman package list
-# Format: one package per line; lines starting with # are comments
+# Forge — pacman package list
+# Format: one package per line; lines starting with # are comments.
+# Consumed by packages::parse_file during installation.
 # ==============================================================================
 
-# --- Core system utilities ---
+# --- Build tools ---
 base-devel
+make
+cmake
+gcc
+clang
+
+# --- Core system utilities ---
 curl
 wget
 git
+github-cli
 openssh
 rsync
-unzip
 zip
-tar
+unzip
+p7zip
 jq
 tree
-
-# --- Shell ---
-zsh
-fish
-bash-completion
-
-# --- Terminal multiplexer ---
-tmux
-
-# --- Editor ---
-neovim
-
-# --- System monitoring ---
-htop
+fastfetch
 btop
-neofetch
 
-# --- Fonts ---
-ttf-jetbrains-mono-nerd
-ttf-fira-code
-noto-fonts
-noto-fonts-emoji
+# --- CLI productivity ---
+ripgrep
+fd
+fzf
+bat
+eza
+zoxide
 
-# --- Wayland/Hyprland stack ---
+# --- Hyprland desktop stack ---
 hyprland
+hyprutils
+xdg-desktop-portal-hyprland
+xdg-utils
+xdg-user-dirs
 waybar
-wofi
-dunst
-swww
+hyprpaper
 grim
 slurp
 wl-clipboard
+thunar
 
-# --- XDG/Desktop integration ---
-xdg-utils
-xdg-user-dirs
+# --- Shell ---
+fish
+starship
 
-# --- Container runtime ---
-docker
-docker-compose
+# --- Editors ---
+neovim
 
-# --- Network ---
-networkmanager
-nm-connection-editor
+# --- Fonts ---
+ttf-jetbrains-mono-nerd
+ttf-noto-nerd
+noto-fonts
+noto-fonts-emoji
+ttf-font-awesome

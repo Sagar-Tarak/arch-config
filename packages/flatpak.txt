@@ -1,20 +1,14 @@
 # ==============================================================================
-# Flatpak package list
-# Format: one application ID per line; lines starting with # are comments
-# Requires flatpak to be installed and Flathub remote to be added.
+# Forge — Flatpak package list
+# Format: one application ID per line; lines starting with # are comments.
+# Forge uses Flatpak sparingly; prefer pacman/AUR where packages are available.
 # ==============================================================================
 
-# --- Browsers ---
-org.mozilla.firefox
-
-# --- Communication ---
-com.discordapp.Discord
-org.telegram.desktop
-
-# --- Media ---
-org.videolan.VLC
-org.gnome.Cheese
-
-# --- Productivity ---
-org.libreoffice.LibreOffice
-md.obsidian.Obsidian
+# No Flatpak packages are required for the Forge base system.
+# Flatpak applications belong in modules/applications/ and are installed
+# on demand via: forge install <name>   (future CLI)
+#
+# Examples (workspace extensions, not base system):
+#   com.discordapp.Discord
+#   org.telegram.desktop
+#   md.obsidian.Obsidian
