@@ -1,0 +1,161 @@
+/* =============================================================================
+   Forge — SwayNC Stylesheet
+   Theme: Catppuccin Mocha
+   ============================================================================= */
+
+* {
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+}
+
+.notification-row {
+    outline: none;
+}
+
+.notification-row:focus,
+.notification-row:hover {
+    background: transparent;
+}
+
+.notification {
+    border-radius: 10px;
+    margin: 4px 8px;
+    padding: 0;
+    background: #1e1e2e;
+    border: 1px solid #313244;
+}
+
+.notification-content {
+    background: transparent;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.close-button {
+    background: #f38ba8;
+    color: #11111b;
+    border-radius: 100%;
+    margin-top: 4px;
+    margin-right: 4px;
+    padding: 2px;
+    font-size: 11px;
+}
+
+.close-button:hover {
+    background: #eba0ac;
+}
+
+.notification-default-action {
+    padding: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #cdd6f4;
+}
+
+.notification-default-action:hover {
+    background: #313244;
+}
+
+.notification-default-action:not(:only-child) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.notification-action {
+    border-radius: 0;
+    border-top: 1px solid #313244;
+    color: #89b4fa;
+    background: transparent;
+}
+
+.notification-action:first-child {
+    border-bottom-left-radius: 8px;
+}
+
+.notification-action:last-child {
+    border-bottom-right-radius: 8px;
+}
+
+.notification-action:hover {
+    background: #313244;
+}
+
+.summary {
+    font-size: 14px;
+    font-weight: bold;
+    color: #cdd6f4;
+}
+
+.time {
+    font-size: 11px;
+    color: #9399b2;
+    margin-right: 4px;
+}
+
+.body {
+    font-size: 12px;
+    color: #bac2de;
+    margin-top: 4px;
+}
+
+.control-center {
+    background: rgba(30, 30, 46, 0.95);
+    border-radius: 12px;
+    border: 1px solid #313244;
+    padding: 4px;
+}
+
+.control-center-list {
+    background: transparent;
+}
+
+.control-center-list-placeholder {
+    opacity: 0.5;
+    color: #6c7086;
+}
+
+.blank-window {
+    background: transparent;
+}
+
+.widget-title {
+    color: #cdd6f4;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 8px 12px 4px 12px;
+}
+
+.widget-title > button {
+    font-size: 12px;
+    color: #cba6f7;
+    background: #313244;
+    border-radius: 6px;
+    padding: 2px 8px;
+}
+
+.widget-title > button:hover {
+    background: #45475a;
+}
+
+.widget-dnd {
+    color: #cdd6f4;
+    padding: 4px 12px 8px 12px;
+}
+
+.widget-dnd > switch {
+    border-radius: 20px;
+    background: #313244;
+    border: 2px solid #45475a;
+}
+
+.widget-dnd > switch:checked {
+    background: #cba6f7;
+    border-color: #cba6f7;
+}
+
+.widget-dnd > switch slider {
+    background: #cdd6f4;
+    border-radius: 100%;
+    min-width: 18px;
+    min-height: 18px;
+}

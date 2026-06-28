@@ -1,0 +1,30 @@
+# ==============================================================================
+# Forge — Ghostty Configuration
+# Theme: Catppuccin Mocha
+# ==============================================================================
+
+font-family = JetBrainsMono Nerd Font
+font-size = 13
+
+theme = catppuccin-mocha
+
+background-opacity = 0.92
+background-blur-radius = 20
+
+window-padding-x = 12
+window-padding-y = 8
+
+cursor-style = block
+cursor-style-blink = false
+
+mouse-hide-while-typing = true
+
+scrollback-limit = 10000
+
+# Shell integration
+shell-integration = fish
+shell-integration-features = cursor,sudo,title
+
+# Window appearance
+window-decoration = none
+gtk-titlebar = false

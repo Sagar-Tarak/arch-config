@@ -1,0 +1,117 @@
+// =============================================================================
+// Forge — Waybar Configuration
+// Theme: Catppuccin Mocha
+// =============================================================================
+{
+    "layer": "top",
+    "position": "top",
+    "height": 36,
+    "spacing": 4,
+    "margin-top": 6,
+    "margin-left": 10,
+    "margin-right": 10,
+
+    "modules-left": [
+        "hyprland/workspaces",
+        "hyprland/window"
+    ],
+
+    "modules-center": [
+        "clock"
+    ],
+
+    "modules-right": [
+        "pulseaudio",
+        "network",
+        "memory",
+        "cpu",
+        "custom/swaync",
+        "tray"
+    ],
+
+    // ---- Modules ----
+
+    "hyprland/workspaces": {
+        "format": "{icon}",
+        "format-icons": {
+            "1": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "urgent": "",
+            "active": "",
+            "default": ""
+        },
+        "on-click": "activate",
+        "sort-by-number": true
+    },
+
+    "hyprland/window": {
+        "max-length": 50,
+        "separate-outputs": true
+    },
+
+    "clock": {
+        "format": "  {:%a %d %b   %H:%M}",
+        "tooltip-format": "<big>{:%B %Y}</big>\n<tt><small>{calendar}</small></tt>",
+        "interval": 60
+    },
+
+    "cpu": {
+        "format": "  {usage}%",
+        "tooltip": true,
+        "interval": 5
+    },
+
+    "memory": {
+        "format": "  {used:0.1f}G",
+        "tooltip-format": "{used:0.1f}G used of {total:0.1f}G",
+        "interval": 10
+    },
+
+    "network": {
+        "format-wifi": "  {signalStrength}%",
+        "format-ethernet": "  {ipaddr}",
+        "format-disconnected": "  Offline",
+        "tooltip-format": "{ifname}: {ipaddr}/{cidr}",
+        "tooltip-format-wifi": "{ssid} ({signalStrength}%)  {ipaddr}"
+    },
+
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "  Muted",
+        "format-icons": {
+            "headphone": "",
+            "headset": "",
+            "default": ["", "", ""]
+        },
+        "on-click": "pavucontrol",
+        "tooltip-format": "{desc} — {volume}%"
+    },
+
+    "custom/swaync": {
+        "tooltip": true,
+        "format": "{icon}  {text}",
+        "format-icons": {
+            "notification": "<span foreground='#f38ba8'>󱅫</span>",
+            "none": "󰂚",
+            "dnd-notification": "<span foreground='#f38ba8'>󱅫</span>",
+            "dnd-none": "󰂛",
+            "inhibited-notification": "<span foreground='#f38ba8'>󱅫</span>",
+            "inhibited-none": "󰂚",
+            "dnd-inhibited-notification": "<span foreground='#f38ba8'>󱅫</span>",
+            "dnd-inhibited-none": "󰂛"
+        },
+        "return-type": "json",
+        "exec-if": "which swaync-client",
+        "exec": "swaync-client -swb",
+        "on-click": "swaync-client -t -sw",
+        "on-click-right": "swaync-client -d -sw",
+        "escape": true
+    },
+
+    "tray": {
+        "spacing": 8
+    }
+}
