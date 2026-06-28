@@ -57,14 +57,17 @@ summary::print_environment() {
 
     if [[ -n "${ARCH_CFG_FLAG_MODULE:-}" ]]; then
         _summary::row "Target Module" "${ARCH_CFG_FLAG_MODULE}"
+    else
+        local module_count="${#FORGE_BASE_MODULES[@]:-0}"
+        _summary::row "Install Plan" "Forge base system (${module_count} modules)"
     fi
 
     printf "\n" >&2
 }
 
-# @description Prints the list of modules that will be installed, reading
-#              each manifest.sh to display name and description. Marks modules
-#              that are enabled by default.
+# @description Prints the modules scheduled for installation.
+#              Uses FORGE_BASE_MODULES when available (the fixed base system);
+#              falls back to dynamically discovered enabled-by-default modules.
 # @noargs
 # @exit 0 Always
 summary::print_modules() {
@@ -75,10 +78,22 @@ summary::print_modules() {
         return 0
     fi
 
+    # Determine which module list to display
+    local -a display_modules=()
+    if [[ -n "${ARCH_CFG_FLAG_MODULE:-}" ]]; then
+        display_modules=("${ARCH_CFG_FLAG_MODULE}")
+    elif [[ -n "${FORGE_BASE_MODULES[*]+x}" ]]; then
+        display_modules=("${FORGE_BASE_MODULES[@]}")
+    else
+        while IFS= read -r name; do
+            display_modules+=("${name}")
+        done < <(module_loader::list)
+    fi
+
     local name
-    while IFS= read -r name; do
+    for name in "${display_modules[@]}"; do
         _summary::print_module_row "${name}"
-    done < <(module_loader::list)
+    done
 
     printf "\n" >&2
 }
@@ -123,34 +138,28 @@ _summary::row() {
 }
 
 # @description Reads a module's manifest and prints one summary row.
-# @arg1 string name Module name
+# @arg1 string name Module path (e.g. "core", "desktop/hyprland")
 _summary::print_module_row() {
     local name="${1}"
     local manifest_file="${MODULES_DIR}/${name}/manifest.sh"
     local desc="(no description)"
-    local marker=""
+    local marker="${BOLD_GREEN:-}●${RESET:-}"
 
     if [[ -f "${manifest_file}" ]]; then
-        # Unset before sourcing to avoid stale values from a prior module
         unset MODULE_DESCRIPTION MODULE_ENABLED_BY_DEFAULT
         # shellcheck source=/dev/null
         source "${manifest_file}"
         desc="${MODULE_DESCRIPTION:-${desc}}"
-        if [[ "${MODULE_ENABLED_BY_DEFAULT:-true}" == "true" ]]; then
-            marker="${BOLD_GREEN:-}●${RESET:-}"
-        else
-            marker="${YELLOW:-}○${RESET:-}"
-        fi
     fi
 
-    # If --module flag is set, only highlight the selected module
     if [[ -n "${ARCH_CFG_FLAG_MODULE:-}" ]]; then
-        if [[ "${name}" == "${ARCH_CFG_FLAG_MODULE}" ]]; then
+        # Single-module mode: only mark the target
+        if [[ "${name}" == "${ARCH_CFG_FLAG_MODULE}" || "${name##*/}" == "${ARCH_CFG_FLAG_MODULE}" ]]; then
             marker="${BOLD_GREEN:-}→${RESET:-}"
         else
             marker=" "
         fi
     fi
 
-    printf "  %s %-18s %s\n" "${marker}" "${name}" "${desc}" >&2
+    printf "  %s %-30s %s\n" "${marker}" "${name}" "${desc}" >&2
 }

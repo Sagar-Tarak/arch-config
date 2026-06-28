@@ -10,17 +10,17 @@ export LC_ALL=C.UTF-8
 readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ==============================================================================
-# Arch Linux Configuration Framework — Main Installer Entry Point
+# Forge — Main Installer Entry Point
 # File: install.sh
 # Purpose: Thin orchestration entrypoint. Bootstraps the framework, loads all
-#          installer components, parses CLI arguments, then delegates to
-#          flow::run for the full installation pipeline.
+#          installer components and the Forge base system definition, parses
+#          CLI arguments, then delegates to flow::run for the full pipeline.
 #          Do not add business logic here — extend installer/ components instead.
 # Usage:
 #   ./install.sh [OPTIONS]
 #   ./install.sh --help
 #   ./install.sh --dry-run
-#   ./install.sh --module git
+#   ./install.sh --module desktop/hyprland
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
@@ -60,6 +60,16 @@ for _component in "${_installer_components[@]}"; do
     source "${_component_path}"
 done
 unset _component _component_path _installer_components _INSTALLER_DIR _bootstrap_entry
+
+# ------------------------------------------------------------------------------
+# Step 2b — Load Forge base system definition (defines FORGE_BASE_MODULES)
+# ------------------------------------------------------------------------------
+_forge_base="${SCRIPT_DIR}/forge/base-system.sh"
+if [[ -f "${_forge_base}" ]]; then
+    # shellcheck source=forge/base-system.sh
+    source "${_forge_base}"
+fi
+unset _forge_base
 
 # ------------------------------------------------------------------------------
 # Step 3 — Parse CLI arguments (populates ARCH_CFG_FLAG_* globals)

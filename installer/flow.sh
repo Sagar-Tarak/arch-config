@@ -183,43 +183,64 @@ _flow::verify_only() {
     return 0
 }
 
-# @description Lists all discovered modules with their manifest descriptions.
+# @description Lists all discovered modules grouped by category.
+#              Marks which modules are part of the Forge base system.
 # @exit 0 Always
 _flow::list_modules() {
-    log::step "Available Modules"
+    log::step "Forge Modules"
 
-    local header
-    printf "  %-20s %-45s %s\n" "NAME" "DESCRIPTION" "DEFAULT" >&2
-    printf "  %-20s %-45s %s\n" "----" "-----------" "-------" >&2
+    printf "  %-30s %-42s %s\n" "MODULE" "DESCRIPTION" "BASE" >&2
+    printf "  %-30s %-42s %s\n" \
+        "──────────────────────────────" \
+        "──────────────────────────────────────────" \
+        "────" >&2
 
     if [[ ! -d "${MODULES_DIR}" ]]; then
         log::warn "No modules directory at: ${MODULES_DIR}" "FLOW"
         return 0
     fi
 
+    local current_category=""
     local name
     while IFS= read -r name; do
         local manifest_file="${MODULES_DIR}/${name}/manifest.sh"
         local desc="(no description)"
-        local default_marker="no"
+        local in_base="no"
 
         if [[ -f "${manifest_file}" ]]; then
             unset MODULE_DESCRIPTION MODULE_ENABLED_BY_DEFAULT
             # shellcheck source=/dev/null
             source "${manifest_file}"
             desc="${MODULE_DESCRIPTION:-${desc}}"
-            if [[ "${MODULE_ENABLED_BY_DEFAULT:-true}" == "true" ]]; then
-                default_marker="yes"
-            fi
         fi
 
-        printf "  %-20s %-45s %s\n" "${name}" "${desc}" "${default_marker}" >&2
+        # Mark modules that appear in FORGE_BASE_MODULES
+        if [[ -n "${FORGE_BASE_MODULES[*]+x}" ]]; then
+            local m
+            for m in "${FORGE_BASE_MODULES[@]}"; do
+                if [[ "${m}" == "${name}" ]]; then
+                    in_base="yes"
+                    break
+                fi
+            done
+        fi
+
+        # Print a blank line whenever the category changes
+        local category="${name%%/*}"
+        if [[ "${name}" == *"/"* && "${category}" != "${current_category}" ]]; then
+            current_category="${category}"
+            printf "\n" >&2
+        fi
+
+        printf "  %-30s %-42s %s\n" "${name}" "${desc}" "${in_base}" >&2
     done < <(module_loader::list)
+
+    printf "\n" >&2
 }
 
 # @description Populates the nameref array with the list of modules to act on.
-#              With --module <name>, the array contains just that one entry.
-#              Without --module, populates with all default-enabled modules.
+#              With --module: single module (supports both full path and leaf name).
+#              Without --module: uses FORGE_BASE_MODULES (the fixed base system).
 # @arg1 nameref target_array_name Name of caller's array variable to populate
 _flow::resolve_target_modules() {
     # Use a nameref to write back to the caller's array (bash 4.3+)
@@ -227,17 +248,32 @@ _flow::resolve_target_modules() {
     _target_array=()
 
     if [[ -n "${ARCH_CFG_FLAG_MODULE:-}" ]]; then
-        # Single-module mode
-        if ! module_loader::exists "${ARCH_CFG_FLAG_MODULE}"; then
+        # Single-module mode — accept full path or leaf name
+        local module_name="${ARCH_CFG_FLAG_MODULE}"
+
+        if ! module_loader::exists "${module_name}"; then
+            # Try to find by leaf name (e.g. "hyprland" → "desktop/hyprland")
+            module_name="$(_flow::find_module_by_leaf "${ARCH_CFG_FLAG_MODULE}")"
+        fi
+
+        if [[ -z "${module_name}" ]]; then
             log::error "Module '${ARCH_CFG_FLAG_MODULE}' not found." "FLOW"
             log::info  "Run --list-modules to see available modules." "FLOW"
             return 1
         fi
-        _target_array=("${ARCH_CFG_FLAG_MODULE}")
+
+        _target_array=("${module_name}")
         return 0
     fi
 
-    # All default-enabled modules
+    # Base system mode: use the Forge fixed module list
+    if [[ -n "${FORGE_BASE_MODULES[*]+x}" ]]; then
+        _target_array=("${FORGE_BASE_MODULES[@]}")
+        return 0
+    fi
+
+    # Fallback: discover all modules with MODULE_ENABLED_BY_DEFAULT=true
+    # (used when forge/base-system.sh is not present)
     if [[ ! -d "${MODULES_DIR}" ]]; then
         return 0
     fi
@@ -246,16 +282,30 @@ _flow::resolve_target_modules() {
     while IFS= read -r name; do
         local manifest_file="${MODULES_DIR}/${name}/manifest.sh"
         local enabled="true"
-
         if [[ -f "${manifest_file}" ]]; then
             unset MODULE_ENABLED_BY_DEFAULT
             # shellcheck source=/dev/null
             source "${manifest_file}"
             enabled="${MODULE_ENABLED_BY_DEFAULT:-true}"
         fi
-
         if [[ "${enabled}" == "true" ]]; then
             _target_array+=("${name}")
+        fi
+    done < <(module_loader::list)
+}
+
+# @description Searches all discovered modules for one whose leaf name matches.
+#              Allows --module hyprland to resolve to desktop/hyprland.
+# @arg1 string leaf  The leaf name to search for
+# @stdout The full module path, or empty string if not found
+# @exit 0 Always
+_flow::find_module_by_leaf() {
+    local leaf="${1}"
+    local name
+    while IFS= read -r name; do
+        if [[ "${name##*/}" == "${leaf}" ]]; then
+            echo "${name}"
+            return 0
         fi
     done < <(module_loader::list)
 }
