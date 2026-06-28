@@ -43,16 +43,27 @@ matugen::verify() {
         "${HOME}/.config/fish/conf.d/colors.fish"
     )
 
+    local colors_missing=0
     local file
     for file in "${_generated[@]}"; do
-        if [[ ! -f "${file}" ]]; then
-            log::error "Generated color file missing: ${file}" "MATUGEN"
+        if [[ -f "${file}" ]]; then
+            log::success "Generated: ${file##*/} → ${file}" "MATUGEN"
+        else
+            log::error "Missing generated file: ${file}" "MATUGEN"
+            colors_missing=$(( colors_missing + 1 ))
             failed=$(( failed + 1 ))
         fi
     done
 
-    if [[ "${failed}" -eq 0 ]]; then
-        log::success "All matugen outputs: present" "MATUGEN"
+    if [[ "${colors_missing}" -gt 0 ]]; then
+        log::error "Run to regenerate: matugen image ~/Pictures/Wallpapers/current.jpg" "MATUGEN"
+        local wallpaper="${HOME}/Pictures/Wallpapers/current.jpg"
+        if [[ ! -e "${wallpaper}" ]]; then
+            log::error "No wallpaper at: ${wallpaper}" "MATUGEN"
+            log::error "Run: bash ${PROJECT_ROOT:-~}/scripts/set-wallpaper.sh /path/to/image" "MATUGEN"
+        fi
+    else
+        log::success "All matugen color outputs present" "MATUGEN"
     fi
 
     [[ "${failed}" -eq 0 ]]

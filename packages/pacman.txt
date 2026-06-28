@@ -47,6 +47,8 @@ eza
 zoxide
 
 # --- Hyprland desktop stack ---
+mesa
+libva-mesa-driver
 hyprland
 hyprutils
 xdg-desktop-portal-hyprland

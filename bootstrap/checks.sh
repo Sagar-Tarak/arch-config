@@ -175,6 +175,43 @@ checks::check_required_commands() {
     return 0
 }
 
+# @description Detects whether the installer is running inside a virtual machine
+#              and prints guidance if so. Hyprland requires DRM/KMS which many
+#              VM configurations do not provide out of the box.
+# @noargs
+# @exit 0 Always (informational only — does not block installation)
+checks::check_vm_environment() {
+    local virt_type
+    virt_type="$(systemd-detect-virt 2>/dev/null || echo "none")"
+
+    if [[ "${virt_type}" == "none" ]]; then
+        log::debug "VM check: running on bare metal." "CHECKS"
+        return 0
+    fi
+
+    log::warn "Virtual machine detected: ${virt_type}" "CHECKS"
+    log::warn "Hyprland requires DRM/KMS. Depending on your VM configuration:" "CHECKS"
+
+    case "${virt_type}" in
+        kvm|qemu)
+            log::warn "  QEMU/KVM: use virtio-vga or virtio-vga-gl display device." "CHECKS"
+            log::warn "  For software rendering: WLR_RENDERER_ALLOW_SOFTWARE=1 Hyprland" "CHECKS"
+            ;;
+        oracle)
+            log::warn "  VirtualBox: enable VMSVGA display + 3D Acceleration in VM settings." "CHECKS"
+            log::warn "  Install package: virtualbox-guest-utils" "CHECKS"
+            ;;
+        vmware)
+            log::warn "  VMware: install open-vm-tools and enable 3D acceleration." "CHECKS"
+            ;;
+        *)
+            log::warn "  If Hyprland fails: WLR_RENDERER_ALLOW_SOFTWARE=1 Hyprland" "CHECKS"
+            ;;
+    esac
+
+    return 0
+}
+
 # @description Verifies that expected top-level project directories exist.
 #              Reads PROJECT_ROOT from the environment (set by variables::load).
 # @noargs
@@ -222,6 +259,8 @@ checks::run_all() {
     _checks::run_one "Not running as root"    checks::check_root             || overall=1
     _checks::run_one "Supported shell"        checks::check_supported_shell  || overall=1
     _checks::run_one "Project structure"      checks::check_project_structure || overall=1
+    # VM detection is informational — always passes, prints guidance if in a VM
+    checks::check_vm_environment
 
     return "${overall}"
 }

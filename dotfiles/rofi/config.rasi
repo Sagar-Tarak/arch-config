@@ -22,5 +22,19 @@ configuration {
     me-accept-entry:        "MousePrimary";
 }
 
+/* Fallback palette — overridden by colors.rasi once matugen has run */
+* {
+    primary:     #6750A4;
+    secondary:   #625B71;
+    bg:          #1C1B1F;
+    surface:     #2B2930;
+    surface_low: #211F26;
+    text:        #E6E1E5;
+    subtext:     #CAC4D0;
+    border_col:  #938F99;
+    error:       #CF6679;
+    on_primary:  #FFFFFF;
+}
+
 @import "colors.rasi"
 @import "theme.rasi"

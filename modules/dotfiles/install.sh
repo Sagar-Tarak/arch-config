@@ -37,8 +37,13 @@ dotfiles::install() {
         local wallpaper="${HOME}/Pictures/Wallpapers/current.jpg"
         if [[ -f "${wallpaper}" ]]; then
             log::info "Generating colors from wallpaper..." "DOTFILES"
-            matugen image "${wallpaper}" 2>/dev/null || \
-                log::warn "matugen failed — run: matugen image ~/Pictures/Wallpapers/current.jpg" "DOTFILES"
+            if ! matugen image "${wallpaper}"; then
+                log::warn "matugen color generation failed." "DOTFILES"
+                log::warn "Fallback colors will be used until you run:" "DOTFILES"
+                log::warn "  bash ${PROJECT_ROOT}/scripts/set-wallpaper.sh /path/to/image" "DOTFILES"
+            else
+                log::success "Color scheme generated from wallpaper." "DOTFILES"
+            fi
         else
             log::warn "No wallpaper found at: ${wallpaper}" "DOTFILES"
             log::warn "Run: scripts/set-wallpaper.sh /path/to/image to generate colors" "DOTFILES"
