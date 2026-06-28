@@ -11,6 +11,17 @@ cmake
 gcc
 clang
 
+# --- Core services ---
+networkmanager
+bluez
+bluez-utils
+avahi
+pipewire
+pipewire-pulse
+wireplumber
+polkit
+gvfs
+
 # --- Core system utilities ---
 curl
 wget
