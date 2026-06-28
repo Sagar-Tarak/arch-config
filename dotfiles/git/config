@@ -1,0 +1,79 @@
+# ==============================================================================
+# Forge — Git Configuration
+# Deployed to ~/.config/git/config (XDG location, read by git automatically)
+# ==============================================================================
+
+[core]
+    editor       = nvim
+    pager        = bat --style=plain
+    autocrlf     = input
+    whitespace   = trailing-space,space-before-tab
+
+[init]
+    defaultBranch = main
+
+[pull]
+    rebase = true
+
+[push]
+    autoSetupRemote = true
+    followTags      = true
+
+[fetch]
+    prune = true
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved   = default
+    tool         = nvimdiff
+
+[rebase]
+    autoStash    = true
+    autoSquash   = true
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = -version:refname
+
+[rerere]
+    enabled = true
+
+[help]
+    autocorrect = prompt
+
+[color]
+    ui = true
+
+[color "branch"]
+    current  = magenta bold
+    local    = blue
+    remote   = cyan
+
+[color "diff"]
+    meta     = yellow
+    frag     = magenta bold
+    old      = red
+    new      = green
+
+[alias]
+    # Logging
+    lg  = log --oneline --graph --decorate --all
+    lp  = log --pretty=format:'%C(yellow)%h%Creset %C(blue)%an%Creset %C(green)%ar%Creset %s'
+    st  = status -sb
+    # Branching
+    co  = checkout
+    cob = checkout -b
+    br  = branch --sort=-committerdate
+    # Staging
+    ap  = add -p
+    # Stash
+    ss  = stash save
+    sp  = stash pop
+    # Undo
+    undo = reset HEAD~1 --mixed
+    # Clean merged branches
+    cleanup = "!git branch --merged | grep -v '\\*\\|main\\|master\\|dev' | xargs -n 1 git branch -d"

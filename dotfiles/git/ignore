@@ -1,0 +1,65 @@
+# ==============================================================================
+# Forge — Global Gitignore
+# Deployed to ~/.config/git/ignore (XDG location, read by git automatically)
+# ==============================================================================
+
+# --- macOS ---
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+\#*\#
+.#*
+Session.vim
+.netrwhist
+
+# --- Environment ---
+.env
+.env.*
+!.env.example
+.direnv/
+.envrc
+
+# --- Build output ---
+dist/
+build/
+out/
+target/
+*.o
+*.a
+*.so
+*.dylib
+
+# --- Dependencies ---
+node_modules/
+vendor/
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# --- Logs ---
+*.log
+logs/
+
+# --- Archives ---
+*.tar.gz
+*.zip
+*.rar
+*.7z
+
+# --- OS ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
