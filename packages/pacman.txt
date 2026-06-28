@@ -1,0 +1,61 @@
+# ==============================================================================
+# pacman package list
+# Format: one package per line; lines starting with # are comments
+# ==============================================================================
+
+# --- Core system utilities ---
+base-devel
+curl
+wget
+git
+openssh
+rsync
+unzip
+zip
+tar
+jq
+tree
+
+# --- Shell ---
+zsh
+fish
+bash-completion
+
+# --- Terminal multiplexer ---
+tmux
+
+# --- Editor ---
+neovim
+
+# --- System monitoring ---
+htop
+btop
+neofetch
+
+# --- Fonts ---
+ttf-jetbrains-mono-nerd
+ttf-fira-code
+noto-fonts
+noto-fonts-emoji
+
+# --- Wayland/Hyprland stack ---
+hyprland
+waybar
+wofi
+dunst
+swww
+grim
+slurp
+wl-clipboard
+
+# --- XDG/Desktop integration ---
+xdg-utils
+xdg-user-dirs
+
+# --- Container runtime ---
+docker
+docker-compose
+
+# --- Network ---
+networkmanager
+nm-connection-editor

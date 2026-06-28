@@ -1,0 +1,22 @@
+# ==============================================================================
+# AUR package list
+# Format: one package per line; lines starting with # are comments
+# Requires paru or yay to be installed first.
+# ==============================================================================
+
+# --- AUR helper (bootstrapped separately) ---
+paru
+
+# --- Terminal emulator ---
+kitty
+
+# --- Node version manager ---
+nvm
+
+# --- Hyprland extras ---
+hyprpicker
+hypridle
+hyprlock
+
+# --- Theme tooling ---
+gradience

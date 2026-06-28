@@ -1,0 +1,20 @@
+# ==============================================================================
+# Flatpak package list
+# Format: one application ID per line; lines starting with # are comments
+# Requires flatpak to be installed and Flathub remote to be added.
+# ==============================================================================
+
+# --- Browsers ---
+org.mozilla.firefox
+
+# --- Communication ---
+com.discordapp.Discord
+org.telegram.desktop
+
+# --- Media ---
+org.videolan.VLC
+org.gnome.Cheese
+
+# --- Productivity ---
+org.libreoffice.LibreOffice
+md.obsidian.Obsidian
