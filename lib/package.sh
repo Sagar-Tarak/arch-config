@@ -1,105 +1,88 @@
 #!/usr/bin/env bash
-
-# Use strict bash options
 set -Eeuo pipefail
-
-# Ensure script is run from a clean environment
 export LC_ALL=C.UTF-8
 
-# Resolve the absolute script path safely
 if [[ -z "${SCRIPT_DIR:-}" ]]; then
     readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 fi
 
-# Double-sourcing guard to prevent multiple imports of the library
-if [[ -n "${_PACKAGE_SH_INCLUDED:-}" ]]; then
-    return 0
-fi
+if [[ -n "${_PACKAGE_SH_INCLUDED:-}" ]]; then return 0; fi
 _PACKAGE_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Package Manager Abstraction Library
+# Forge — Package Manager Abstraction Library
 # File: lib/package.sh
-# Purpose: Provides reusable helper functions and interfaces for querying and
-#          managing packages using pacman, yay, paru, and flatpak.
+# Purpose: Real package installation via pacman, paru/yay, and flatpak.
+#          All operations are idempotent: already-installed packages are skipped.
+#          All operations respect ARCH_CFG_DRY_RUN.
 # Dependencies: lib/logger.sh, lib/command.sh
 # Public API:
-#   package::has_manager      - Checks if a package manager executable exists
-#   package::detect_aur_helper- Detects which AUR helper (paru/yay) is installed
-#   package::is_installed     - Checks if a package is installed under a manager
-#   package::install          - Simulation interface for installing a package
-#   has_manager               - Delegate for package::has_manager
-#   detect_aur_helper         - Delegate for package::detect_aur_helper
-#   is_installed              - Delegate for package::is_installed
-#   install_package           - Safe delegate for package::install
-#   install                   - Delegate for package::install (collides with coreutils install, use with care)
-#   pkg::is_installed         - Compatibility namespace delegate
-#   pkg::install              - Compatibility namespace delegate
+#   package::has_manager          - Checks if a package manager executable exists
+#   package::detect_aur_helper    - Returns paru or yay if available
+#   package::is_installed         - Checks if a package is installed
+#   package::install              - Installs one package (auto-detects manager)
+#   package::remove               - Removes one package
+#   package::install_list         - Batch install via a specific manager
+#   package::install_manifest     - Install all packages listed in a file
+#   package::verify_manifest      - Check all packages in a file are installed
+#   package::missing_from_manifest- Print packages in a file that are not installed
+#   package::count_manifest       - Count installable entries in a file
 # ==============================================================================
 
-# Import dependencies
 _PACKAGE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 if [[ -f "${_PACKAGE_DIR}/logger.sh" ]]; then
-    # shellcheck disable=SC1091
     source "${_PACKAGE_DIR}/logger.sh"
 else
-    echo "Error: logger.sh not found relative to package.sh at: ${_PACKAGE_DIR}/logger.sh" >&2
+    echo "Error: logger.sh not found at: ${_PACKAGE_DIR}/logger.sh" >&2
     return 1 2>/dev/null || exit 1
 fi
 
 if [[ -f "${_PACKAGE_DIR}/command.sh" ]]; then
-    # shellcheck disable=SC1091
     source "${_PACKAGE_DIR}/command.sh"
 else
-    echo "Error: command.sh not found relative to package.sh at: ${_PACKAGE_DIR}/command.sh" >&2
+    echo "Error: command.sh not found at: ${_PACKAGE_DIR}/command.sh" >&2
     return 1 2>/dev/null || exit 1
 fi
 
 # ==============================================================================
-# Namespaced API Functions
+# Manager detection
 # ==============================================================================
 
-# @description Checks if the given package manager's command line client is installed.
-# @arg1 string manager Name of the manager executable (e.g. pacman, yay, paru, flatpak)
-# @exit 0 if manager exists, 1 otherwise.
 package::has_manager() {
     local manager="${1:-}"
     command::command_exists "${manager}"
 }
 
-# @description Detects whether 'paru' or 'yay' is available in the environment,
-#              preferring 'paru'.
-# @noargs
-# @stdout Name of the detected helper (paru or yay)
-# @exit 0 if a helper is found, 1 otherwise.
 package::detect_aur_helper() {
     if package::has_manager "paru"; then
-        echo "paru"
-        return 0
+        echo "paru"; return 0
     elif package::has_manager "yay"; then
-        echo "yay"
-        return 0
+        echo "yay"; return 0
     fi
     return 1
 }
 
-# @description Checks if a package is currently active/installed on the system.
-# @arg1 string package The name of the package.
-# @arg2 string manager Optional manager to check (pacman, yay, paru, flatpak).
-#                     Auto-detects pacman or flatpak if empty.
-# @exit 0 if installed, 1 otherwise.
+# ==============================================================================
+# Query
+# ==============================================================================
+
+# @description Checks if a package is currently installed.
+# @arg1 string package  Package name (or Flatpak application ID)
+# @arg2 string manager  Optional: pacman | paru | yay | flatpak (auto-detected)
+# @exit 0 if installed, 1 otherwise
 package::is_installed() {
     local pkg="${1:-}"
     local manager="${2:-}"
 
     if [[ -z "${pkg}" ]]; then
-        log::error "Package name is required" "PKG"
+        log::error "package::is_installed: package name required" "PKG"
         return 1
     fi
 
-    # Auto-detect manager: flatpak apps usually have 3 components (e.g. org.domain.App)
     if [[ -z "${manager}" ]]; then
-        if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]] && package::has_manager "flatpak"; then
+        if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]] \
+           && package::has_manager "flatpak"; then
             manager="flatpak"
         else
             manager="pacman"
@@ -107,111 +90,372 @@ package::is_installed() {
     fi
 
     case "${manager}" in
-        pacman|yay|paru)
-            if package::has_manager "pacman"; then
-                pacman -Qq "${pkg}" &>/dev/null
-                return $?
-            fi
+        pacman|paru|yay)
+            package::has_manager "pacman" && pacman -Qq "${pkg}" &>/dev/null
             ;;
         flatpak)
-            if package::has_manager "flatpak"; then
-                flatpak info "${pkg}" &>/dev/null
-                return $?
-            fi
+            package::has_manager "flatpak" && flatpak info "${pkg}" &>/dev/null
             ;;
         *)
             log::error "Unsupported package manager: ${manager}" "PKG"
             return 1
             ;;
     esac
-    return 1
 }
 
-# @description Simulates installing a package. Checks if already installed first.
-#              Does not modify the host system; serves as a pipeline interface.
-# @arg1 string package The package to install.
-# @arg2 string manager Optional package manager. Auto-detects if empty.
-# @exit 0 if package is installed or simulation succeeds.
+# ==============================================================================
+# Install / Remove
+# ==============================================================================
+
+# @description Installs a single package. Skips if already installed.
+# @arg1 string package  Package name
+# @arg2 string manager  Optional: pacman | paru | yay | flatpak (auto-detected)
+# @exit 0 on success or already installed, 1 on failure
 package::install() {
     local pkg="${1:-}"
     local manager="${2:-}"
 
     if [[ -z "${pkg}" ]]; then
-        log::error "Package name is required" "PKG"
+        log::error "package::install: package name required" "PKG"
         return 1
     fi
 
-    # Auto-detect manager
     if [[ -z "${manager}" ]]; then
-        if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]] && package::has_manager "flatpak"; then
+        if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]] \
+           && package::has_manager "flatpak"; then
             manager="flatpak"
+        elif package::detect_aur_helper &>/dev/null; then
+            manager="$(package::detect_aur_helper)"
         else
-            local aur_helper
-            if aur_helper="$(package::detect_aur_helper 2>/dev/null)"; then
-                manager="${aur_helper}"
-            else
-                manager="pacman"
-            fi
+            manager="pacman"
         fi
     fi
 
-    # Idempotency check
     if package::is_installed "${pkg}" "${manager}"; then
-        log::info "Package '${pkg}' is already installed via ${manager} (skipping)" "PKG"
+        log::info "Already installed: ${pkg}" "PKG"
         return 0
     fi
 
-    log::info "Installing package: ${pkg} via ${manager}" "PKG"
-    if [[ "${ARCH_CFG_DRY_RUN:-}" == "true" ]]; then
-        log::info "[DRY-RUN] Would install package: ${pkg} using ${manager}" "PKG"
+    log::info "Installing: ${pkg} (${manager})" "PKG"
+
+    if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
+        log::info "[DRY-RUN] Would install: ${pkg} via ${manager}" "PKG"
         return 0
     fi
 
-    # As per prompt, package installation command execution is deferred.
-    # We log the action to establish the standard interface pipeline.
-    log::info "[INTERFACE] Package installation simulated for: ${pkg} via ${manager}" "PKG"
+    case "${manager}" in
+        pacman)
+            sudo pacman -S --needed --noconfirm "${pkg}"
+            ;;
+        paru|yay)
+            "${manager}" -S --needed --noconfirm "${pkg}"
+            ;;
+        flatpak)
+            flatpak install --noninteractive "${pkg}"
+            ;;
+        *)
+            log::error "Unsupported package manager: ${manager}" "PKG"
+            return 1
+            ;;
+    esac
+
+    local rc=$?
+    if [[ "${rc}" -ne 0 ]]; then
+        log::error "Failed to install '${pkg}' via ${manager} (exit ${rc})" "PKG"
+        return 1
+    fi
+
+    log::success "Installed: ${pkg}" "PKG"
+    return 0
+}
+
+# @description Removes a single package.
+# @arg1 string package  Package name
+# @arg2 string manager  Optional: pacman | flatpak (auto-detected)
+# @exit 0 on success or not installed, 1 on failure
+package::remove() {
+    local pkg="${1:-}"
+    local manager="${2:-pacman}"
+
+    if [[ -z "${pkg}" ]]; then
+        log::error "package::remove: package name required" "PKG"
+        return 1
+    fi
+
+    if ! package::is_installed "${pkg}" "${manager}"; then
+        log::info "Not installed, nothing to remove: ${pkg}" "PKG"
+        return 0
+    fi
+
+    log::info "Removing: ${pkg} (${manager})" "PKG"
+
+    if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
+        log::info "[DRY-RUN] Would remove: ${pkg} via ${manager}" "PKG"
+        return 0
+    fi
+
+    case "${manager}" in
+        pacman|paru|yay)
+            sudo pacman -Rns --noconfirm "${pkg}"
+            ;;
+        flatpak)
+            flatpak uninstall --noninteractive "${pkg}"
+            ;;
+        *)
+            log::error "Unsupported package manager: ${manager}" "PKG"
+            return 1
+            ;;
+    esac
+
+    local rc=$?
+    if [[ "${rc}" -ne 0 ]]; then
+        log::error "Failed to remove '${pkg}' via ${manager} (exit ${rc})" "PKG"
+        return 1
+    fi
+
+    log::success "Removed: ${pkg}" "PKG"
+    return 0
+}
+
+# @description Batch-installs a list of packages via one manager.
+#              Uses --needed so already-installed packages are skipped by pacman.
+#              Falls back to individual installs for flatpak.
+# @arg1 string manager  pacman | paru | yay | flatpak
+# @arg2 string... packages
+# @exit 0 if all succeed, 1 if any fail
+package::install_list() {
+    local manager="${1:-}"; shift
+    local -a pkgs=("$@")
+
+    if [[ -z "${manager}" ]]; then
+        log::error "package::install_list: manager required as first argument" "PKG"
+        return 1
+    fi
+
+    if [[ "${#pkgs[@]}" -eq 0 ]]; then
+        return 0
+    fi
+
+    # Filter out already-installed packages (flatpak handles its own idempotency
+    # but pacman --needed also covers it; pre-filter for cleaner logs)
+    local -a missing=()
+    local p
+    for p in "${pkgs[@]}"; do
+        if ! package::is_installed "${p}" "${manager}"; then
+            missing+=("${p}")
+        else
+            log::info "Already installed: ${p}" "PKG"
+        fi
+    done
+
+    if [[ "${#missing[@]}" -eq 0 ]]; then
+        log::info "All packages already installed (${manager})" "PKG"
+        return 0
+    fi
+
+    log::info "Installing ${#missing[@]} package(s) via ${manager}: ${missing[*]}" "PKG"
+
+    if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
+        local p
+        for p in "${missing[@]}"; do
+            log::info "[DRY-RUN] Would install: ${p} via ${manager}" "PKG"
+        done
+        return 0
+    fi
+
+    case "${manager}" in
+        pacman)
+            sudo pacman -S --needed --noconfirm "${missing[@]}"
+            ;;
+        paru|yay)
+            "${manager}" -S --needed --noconfirm "${missing[@]}"
+            ;;
+        flatpak)
+            local p
+            local failed=0
+            for p in "${missing[@]}"; do
+                flatpak install --noninteractive "${p}" || failed=$(( failed + 1 ))
+            done
+            [[ "${failed}" -eq 0 ]]
+            ;;
+        *)
+            log::error "Unsupported package manager: ${manager}" "PKG"
+            return 1
+            ;;
+    esac
+
+    local rc=$?
+    if [[ "${rc}" -ne 0 ]]; then
+        log::error "Batch install failed via ${manager} (exit ${rc})" "PKG"
+        return 1
+    fi
     return 0
 }
 
 # ==============================================================================
-# Non-Namespaced Public API Delegates
+# Manifest-based operations
 # ==============================================================================
 
-# @description Delegate for package::has_manager
-has_manager() {
-    package::has_manager "$@"
+# @description Parses a package manifest file: strips comments (#...) and
+#              blank lines, prints one package name per line.
+# @arg1 string file  Absolute path to a package manifest file
+# @stdout Package names, one per line
+# @exit 0 always (missing file is warned, not fatal)
+_package::parse_manifest() {
+    local file="${1:-}"
+
+    if [[ -z "${file}" ]]; then
+        log::error "_package::parse_manifest: file path required" "PKG"
+        return 1
+    fi
+
+    if [[ ! -f "${file}" ]]; then
+        log::warn "Package manifest not found: ${file}" "PKG"
+        return 0
+    fi
+
+    local line
+    while IFS= read -r line || [[ -n "${line}" ]]; do
+        line="${line%%#*}"             # strip inline comments
+        line="${line#"${line%%[![:space:]]*}"}"  # ltrim
+        line="${line%"${line##*[![:space:]]}"}"  # rtrim
+        [[ -z "${line}" ]] && continue
+        printf "%s\n" "${line}"
+    done < "${file}"
 }
 
-# @description Delegate for package::detect_aur_helper
-detect_aur_helper() {
-    package::detect_aur_helper "$@"
+# @description Counts installable entries in a manifest file.
+# @arg1 string file  Manifest file path
+# @stdout Integer count
+package::count_manifest() {
+    local file="${1:-}"
+    local count=0
+    local pkg
+    while IFS= read -r pkg; do
+        count=$(( count + 1 ))
+    done < <(_package::parse_manifest "${file}")
+    printf "%d" "${count}"
 }
 
-# @description Delegate for package::is_installed
-is_installed() {
-    package::is_installed "$@"
+# @description Installs every package listed in a manifest file.
+# @arg1 string file     Manifest file path
+# @arg2 string manager  Optional: pacman | paru | yay | flatpak (auto-detected per package)
+# @exit 0 if all succeed, 1 if any fail
+package::install_manifest() {
+    local file="${1:-}"
+    local manager="${2:-}"
+
+    if [[ -z "${file}" ]]; then
+        log::error "package::install_manifest: file path required" "PKG"
+        return 1
+    fi
+
+    if [[ ! -f "${file}" ]]; then
+        log::warn "Package manifest not found: ${file}" "PKG"
+        return 0
+    fi
+
+    log::info "Installing packages from: ${file}" "PKG"
+
+    local -a pkgs=()
+    local pkg
+    while IFS= read -r pkg; do
+        pkgs+=("${pkg}")
+    done < <(_package::parse_manifest "${file}")
+
+    if [[ "${#pkgs[@]}" -eq 0 ]]; then
+        log::info "No packages in manifest: ${file}" "PKG"
+        return 0
+    fi
+
+    local failed=0
+    for pkg in "${pkgs[@]}"; do
+        package::install "${pkg}" "${manager}" || failed=$(( failed + 1 ))
+    done
+
+    if [[ "${failed}" -gt 0 ]]; then
+        log::error "${failed} package(s) failed to install from: ${file}" "PKG"
+        return 1
+    fi
+    return 0
 }
 
-# @description Delegate for package::install
-install_package() {
-    package::install "$@"
+# @description Checks that every package in a manifest file is installed.
+# @arg1 string file     Manifest file path
+# @arg2 string manager  Optional: auto-detected per package
+# @exit 0 if all installed, 1 if any missing
+package::verify_manifest() {
+    local file="${1:-}"
+    local manager="${2:-}"
+
+    if [[ ! -f "${file}" ]]; then
+        log::warn "Package manifest not found: ${file}" "PKG"
+        return 1
+    fi
+
+    local failed=0
+    local pkg
+    while IFS= read -r pkg; do
+        local mgr="${manager}"
+        if [[ -z "${mgr}" ]]; then
+            if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]]; then
+                mgr="flatpak"
+            else
+                mgr="pacman"
+            fi
+        fi
+        if package::is_installed "${pkg}" "${mgr}"; then
+            log::success "Verified: ${pkg}" "PKG"
+        else
+            log::error "Missing: ${pkg}" "PKG"
+            failed=$(( failed + 1 ))
+        fi
+    done < <(_package::parse_manifest "${file}")
+
+    [[ "${failed}" -eq 0 ]]
 }
 
-# @description Delegate for package::install (Warning: shadows coreutils 'install')
-install() {
-    package::install "$@"
+# @description Prints the names of packages in a manifest that are not installed.
+# @arg1 string file     Manifest file path
+# @arg2 string manager  Optional: auto-detected per package
+# @stdout Missing package names, one per line
+# @exit 0 if none missing, 1 if any missing
+package::missing_from_manifest() {
+    local file="${1:-}"
+    local manager="${2:-}"
+
+    if [[ ! -f "${file}" ]]; then
+        log::warn "Package manifest not found: ${file}" "PKG"
+        return 1
+    fi
+
+    local found_missing=0
+    local pkg
+    while IFS= read -r pkg; do
+        local mgr="${manager}"
+        if [[ -z "${mgr}" ]]; then
+            if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]]; then
+                mgr="flatpak"
+            else
+                mgr="pacman"
+            fi
+        fi
+        if ! package::is_installed "${pkg}" "${mgr}"; then
+            printf "%s\n" "${pkg}"
+            found_missing=1
+        fi
+    done < <(_package::parse_manifest "${file}")
+
+    [[ "${found_missing}" -eq 0 ]]
 }
 
 # ==============================================================================
-# Compatibility Namespaced Delegates
+# Compatibility delegates (kept for backward compatibility with existing tests)
 # ==============================================================================
 
-# @description Compatibility namespace delegate
-pkg::is_installed() {
-    package::is_installed "$@"
-}
-
-# @description Compatibility namespace delegate
-pkg::install() {
-    package::install "$@"
-}
+has_manager()      { package::has_manager "$@"; }
+detect_aur_helper(){ package::detect_aur_helper "$@"; }
+is_installed()     { package::is_installed "$@"; }
+install_package()  { package::install "$@"; }
+pkg::is_installed(){ package::is_installed "$@"; }
+pkg::install()     { package::install "$@"; }
