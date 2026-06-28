@@ -103,6 +103,10 @@ _flow::run_full() {
         log::info "Auto-confirm active (--yes) — skipping prompt." "FLOW"
     fi
 
+    # 4b. Bootstrap AUR helper (before any modules that need it)
+    log::step "AUR Helper"
+    aur::bootstrap || log::warn "AUR bootstrap failed — AUR packages will be skipped" "FLOW"
+
     # 5. Execute modules
     log::step "Installing Modules"
     _flow::execute_modules || true   # individual failures logged; continue to verify
@@ -308,7 +312,8 @@ _flow::enable_services() {
     if [[ -n "${FORGE_SYSTEM_SERVICES[*]+x}" ]]; then
         local svc
         for svc in "${FORGE_SYSTEM_SERVICES[@]}"; do
-            service::enable "${svc}" "system" "now" || failed=$(( failed + 1 ))
+            # Enable for next boot; do not attempt --now (may conflict during install)
+            service::enable "${svc}" "system" || failed=$(( failed + 1 ))
         done
     else
         log::info "FORGE_SYSTEM_SERVICES not defined — skipping system services." "FLOW"
@@ -317,7 +322,7 @@ _flow::enable_services() {
     if [[ -n "${FORGE_USER_SERVICES[*]+x}" ]]; then
         local svc
         for svc in "${FORGE_USER_SERVICES[@]}"; do
-            service::enable "${svc}" "user" "now" || failed=$(( failed + 1 ))
+            service::enable "${svc}" "user" || failed=$(( failed + 1 ))
         done
     else
         log::info "FORGE_USER_SERVICES not defined — skipping user services." "FLOW"
