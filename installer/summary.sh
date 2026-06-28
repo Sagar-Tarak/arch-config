@@ -58,7 +58,10 @@ summary::print_environment() {
     if [[ -n "${ARCH_CFG_FLAG_MODULE:-}" ]]; then
         _summary::row "Target Module" "${ARCH_CFG_FLAG_MODULE}"
     else
-        local module_count="${#FORGE_BASE_MODULES[@]:-0}"
+        local module_count=0
+        if [[ -n "${FORGE_BASE_MODULES[*]+x}" ]]; then
+            module_count="${#FORGE_BASE_MODULES[@]}"
+        fi
         _summary::row "Install Plan" "Forge base system (${module_count} modules)"
     fi
 
