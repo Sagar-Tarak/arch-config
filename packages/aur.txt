@@ -1,27 +1,23 @@
 # ==============================================================================
 # Forge — AUR package list
 # Format: one package per line; lines starting with # are comments.
-# Requires paru (bootstrapped first) to install.
+# Requires paru (auto-bootstrapped) to install.
+#
+# Only list packages that are NOT available in the official Arch repositories.
+# Run `pacman -Ss <name>` to check before adding anything here.
 # ==============================================================================
 
-# --- AUR helper (bootstrapped before all other AUR packages) ---
-paru
-
 # --- Terminal ---
-ghostty
+ghostty               # not in official repos
 
 # --- Hyprland extras ---
-hyprpicker
-hypridle
-hyprlock
-rofi-wayland
-swaync
+hyprpicker            # not in official repos
+
+# --- Notification daemon ---
+swaync                # not in official repos
 
 # --- Editors ---
-visual-studio-code-bin
+visual-studio-code-bin # Microsoft binary; only available via AUR
 
 # --- Browser ---
-zen-browser
-
-# --- CLI utilities ---
-yq
+zen-browser           # not in official repos

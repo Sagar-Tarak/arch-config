@@ -5,7 +5,7 @@ export LC_ALL=C.UTF-8
 if [[ -n "${_MODULE_HYPRIDLE_INSTALL_INCLUDED:-}" ]]; then return 0; fi
 _MODULE_HYPRIDLE_INSTALL_INCLUDED=1
 
-# @description Installs Hypridle idle management daemon.
+# @description Installs Hypridle idle management daemon (official repos).
 # @exit 0 on success
 hypridle::install() {
     log::step "Hypridle" "HYPRIDLE"
@@ -13,11 +13,11 @@ hypridle::install() {
     local -a _pkgs=( hypridle )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
-        log::info "[DRY-RUN] Would install (AUR): ${_pkgs[*]}" "HYPRIDLE"
+        log::info "[DRY-RUN] Would install (pacman): ${_pkgs[*]}" "HYPRIDLE"
         return 0
     fi
 
-    aur::install "${_pkgs[@]}" || return 1
+    package::install_list "pacman" "${_pkgs[@]}" || return 1
 
     log::success "Hypridle installed" "HYPRIDLE"
     return 0

@@ -4,7 +4,7 @@
 # Consumed by packages::parse_file during installation.
 # ==============================================================================
 
-# --- Build tools ---
+# --- Build tools (required first — needed to bootstrap AUR helper) ---
 base-devel
 make
 cmake
@@ -33,6 +33,7 @@ zip
 unzip
 p7zip
 jq
+yq
 tree
 fastfetch
 btop
@@ -53,10 +54,15 @@ xdg-utils
 xdg-user-dirs
 waybar
 hyprpaper
+hyprlock
+hypridle
 grim
 slurp
 wl-clipboard
+rofi-wayland
 thunar
+thunar-volman
+tumbler
 
 # --- Shell ---
 fish
