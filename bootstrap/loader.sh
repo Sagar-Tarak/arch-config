@@ -19,7 +19,8 @@ _LOADER_SH_INCLUDED=1
 #          duplicate-load protection. All other bootstrap components depend on
 #          this file being sourced first.
 # Dependencies: lib/colors.sh, lib/logger.sh, lib/command.sh,
-#               lib/filesystem.sh, lib/package.sh, lib/utils.sh
+#               lib/filesystem.sh, lib/package.sh, lib/utils.sh,
+#               lib/state.sh, lib/transaction.sh
 # Public API:
 #   loader::load_libs  - Sources all six core libraries in correct order
 #   loader::lib_path   - Resolves the absolute path to the lib/ directory
@@ -45,14 +46,17 @@ loader::lib_path() {
     echo "${_LOADER_LIB_DIR}"
 }
 
-# @description Sources all six core libraries in dependency order.
+# @description Sources all core libraries in dependency order.
 #              Each library has its own sourcing guard so duplicate calls
 #              to this function are harmless.
 # @noargs
 # @exit 0 on success, 1 if any library file is missing.
 loader::load_libs() {
-    # Ordered by dependency: colors first, then logger (depends on colors),
-    # then command/filesystem/package (depend on logger), then utils (leaf).
+    # Ordered by dependency:
+    #   colors → logger → command/filesystem/package/utils → state → transaction
+    # state.sh and transaction.sh only reference STATE_* / RUNTIME_* variables
+    # inside their function bodies, so they may be sourced before variables::load
+    # is called — the variables will be set by the time any function runs.
     local -a _libs=(
         "colors.sh"
         "logger.sh"
@@ -60,6 +64,8 @@ loader::load_libs() {
         "filesystem.sh"
         "package.sh"
         "utils.sh"
+        "state.sh"
+        "transaction.sh"
     )
 
     local lib

@@ -76,6 +76,28 @@ variables::load() {
     # Log output directory
     export LOG_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/arch-config/logs"
 
+    # --------------------------------------------------------------------------
+    # Runtime home — all persistent framework state lives under this directory.
+    # Uses XDG_DATA_HOME per the XDG Base Directory Specification.
+    # --------------------------------------------------------------------------
+    export RUNTIME_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/arch-config"
+
+    # Runtime subdirectories
+    export RUNTIME_BACKUPS_DIR="${RUNTIME_DIR}/backups"
+    export RUNTIME_CACHE_DIR="${RUNTIME_DIR}/cache"
+    export RUNTIME_LOGS_DIR="${RUNTIME_DIR}/logs"
+    export RUNTIME_RUNTIME_DIR="${RUNTIME_DIR}/runtime"
+    export RUNTIME_STATE_DIR="${RUNTIME_DIR}/state"
+    export RUNTIME_TRANSACTIONS_DIR="${RUNTIME_DIR}/transactions"
+
+    # Metadata JSON files
+    export STATE_INSTALL_JSON="${RUNTIME_DIR}/install.json"
+    export STATE_MODULES_JSON="${RUNTIME_DIR}/modules.json"
+    export STATE_HISTORY_JSON="${RUNTIME_DIR}/history.json"
+
+    # Exclusive installer lock file
+    export STATE_LOCK_FILE="${RUNTIME_DIR}/runtime/lock"
+
     # Default package manager for Arch Linux
     export DEFAULT_PACKAGE_MANAGER="pacman"
 
