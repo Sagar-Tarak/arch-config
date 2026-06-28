@@ -43,12 +43,15 @@ declare -A _MODULE_LOADER_LOADED=()
 # Namespaced API — module_loader::*
 # ==============================================================================
 
-# @description Returns 0 if a module directory exists under MODULES_DIR.
-# @arg1 string name Module name (directory basename under modules/)
+# @description Returns 0 if a module exists under MODULES_DIR.
+#              Accepts both flat names ("core") and category-relative paths
+#              ("desktop/hyprland"). A valid module directory must contain a
+#              manifest.sh file.
+# @arg1 string name Module name or category/name path
 # @exit 0 if exists, 1 otherwise
 module_loader::exists() {
     local name="${1:-}"
-    [[ -n "${name}" && -d "${MODULES_DIR}/${name}" ]]
+    [[ -n "${name}" && -f "${MODULES_DIR}/${name}/manifest.sh" ]]
 }
 
 # @description Returns 0 if the named module has already been loaded in this
@@ -61,9 +64,12 @@ module_loader::is_loaded() {
 }
 
 # @description Prints each discovered module name to stdout, one per line.
-#              Iterates over immediate subdirectories of MODULES_DIR.
+#              Discovers modules at two depths:
+#                • Flat:     modules/core/          → "core"
+#                • Category: modules/desktop/hyprland/ → "desktop/hyprland"
+#              A directory is a module if it contains a manifest.sh file.
 # @noargs
-# @stdout Module names, one per line
+# @stdout Module paths (relative to MODULES_DIR), one per line, sorted
 # @exit 0 Always
 module_loader::list() {
     if [[ ! -d "${MODULES_DIR}" ]]; then
@@ -71,15 +77,12 @@ module_loader::list() {
         return 0
     fi
 
-    local module_path
-    for module_path in "${MODULES_DIR}"/*/; do
-        # Skip if glob matched nothing
-        [[ -d "${module_path}" ]] || continue
-        # Trim trailing slash and extract basename without a fork
-        local name="${module_path%/}"
-        name="${name##*/}"
-        echo "${name}"
-    done
+    local manifest
+    while IFS= read -r manifest; do
+        local module_dir="${manifest%/manifest.sh}"
+        # Emit relative path from MODULES_DIR (e.g. "core" or "desktop/hyprland")
+        echo "${module_dir#"${MODULES_DIR}/"}"
+    done < <(find "${MODULES_DIR}" -mindepth 2 -maxdepth 3 -name "manifest.sh" | sort)
 }
 
 # @description Sources a module's manifest, resolves its declared dependencies
@@ -156,15 +159,18 @@ module_loader::load() {
 # Namespaced API — module::* (public dispatch layer)
 # ==============================================================================
 
-# @description Loads a module and calls its <name>::install function.
-#              The installer calls this and never invokes module internals directly.
-# @arg1 string name Module name
+# @description Loads a module and calls its <leaf>::install function.
+#              The function namespace is always the leaf directory name:
+#              "desktop/hyprland" → hyprland::install
+#              "core"             → core::install
+# @arg1 string name Module path (e.g. "core", "desktop/hyprland")
 # @exit 0 on success, 1 if module cannot be loaded or has no install function
 module::install() {
     local name="${1:-}"
     module_loader::load "${name}" || return 1
 
-    local fn="${name}::install"
+    local leaf="${name##*/}"  # desktop/hyprland → hyprland; core → core
+    local fn="${leaf}::install"
     if ! declare -f "${fn}" &>/dev/null; then
         log::warn "Module '${name}' does not define ${fn} — skipping install" "MODULE"
         return 0
@@ -173,14 +179,15 @@ module::install() {
     "${fn}"
 }
 
-# @description Loads a module and calls its <name>::verify function.
-# @arg1 string name Module name
+# @description Loads a module and calls its <leaf>::verify function.
+# @arg1 string name Module path (e.g. "core", "desktop/hyprland")
 # @exit 0 if verification passes, 1 otherwise
 module::verify() {
     local name="${1:-}"
     module_loader::load "${name}" || return 1
 
-    local fn="${name}::verify"
+    local leaf="${name##*/}"
+    local fn="${leaf}::verify"
     if ! declare -f "${fn}" &>/dev/null; then
         log::warn "Module '${name}' does not define ${fn} — marking unverified" "MODULE"
         return 1
@@ -189,14 +196,15 @@ module::verify() {
     "${fn}"
 }
 
-# @description Loads a module and calls its <name>::uninstall function.
-# @arg1 string name Module name
+# @description Loads a module and calls its <leaf>::uninstall function.
+# @arg1 string name Module path (e.g. "core", "desktop/hyprland")
 # @exit 0 on success, 1 if module cannot be loaded
 module::uninstall() {
     local name="${1:-}"
     module_loader::load "${name}" || return 1
 
-    local fn="${name}::uninstall"
+    local leaf="${name##*/}"
+    local fn="${leaf}::uninstall"
     if ! declare -f "${fn}" &>/dev/null; then
         log::warn "Module '${name}' does not define ${fn} — skipping uninstall" "MODULE"
         return 0
