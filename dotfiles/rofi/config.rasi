@@ -22,4 +22,5 @@ configuration {
     me-accept-entry:        "MousePrimary";
 }
 
-@import "catppuccin-mocha.rasi"
+@import "colors.rasi"
+@import "theme.rasi"

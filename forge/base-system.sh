@@ -60,7 +60,10 @@ readonly -a FORGE_BASE_MODULES=(
     # 7. Development baseline
     "workspace/git"        # Git + GitHub CLI
 
-    # 8. Dotfiles: always last — links configs after tools are installed
+    # 8. Theming: wallpaper-driven color generation
+    "desktop/matugen"      # matugen — generates colors from wallpaper
+
+    # 9. Dotfiles: always last — links configs after tools are installed
     "dotfiles"
 )
 

@@ -31,5 +31,19 @@ dotfiles::install() {
     # Regenerate XDG user directories after linking fish/git configs
     xdg-user-dirs-update 2>/dev/null || true
 
+    # Generate initial color scheme — templates are now linked so matugen can
+    # find them at ~/.config/matugen/templates/
+    if command -v matugen &>/dev/null; then
+        local wallpaper="${HOME}/Pictures/Wallpapers/current.jpg"
+        if [[ -f "${wallpaper}" ]]; then
+            log::info "Generating colors from wallpaper..." "DOTFILES"
+            matugen image "${wallpaper}" 2>/dev/null || \
+                log::warn "matugen failed — run: matugen image ~/Pictures/Wallpapers/current.jpg" "DOTFILES"
+        else
+            log::warn "No wallpaper found at: ${wallpaper}" "DOTFILES"
+            log::warn "Run: scripts/set-wallpaper.sh /path/to/image to generate colors" "DOTFILES"
+        fi
+    fi
+
     return 0
 }

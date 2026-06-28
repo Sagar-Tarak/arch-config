@@ -16,3 +16,6 @@ hyprpicker            # not in official repos
 # --- Notification daemon ---
 swaync                # not in official repos
 
+# --- Theming ---
+matugen-bin           # wallpaper-driven Material You color generation
+
