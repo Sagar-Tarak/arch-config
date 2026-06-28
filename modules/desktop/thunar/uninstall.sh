@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+export LC_ALL=C.UTF-8
+
+if [[ -n "${_MODULE_THUNAR_UNINSTALL_INCLUDED:-}" ]]; then return 0; fi
+_MODULE_THUNAR_UNINSTALL_INCLUDED=1
+
+thunar::uninstall() {
+    log::step "Uninstalling thunar" "THUNAR"
+
+    if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
+        log::info "[DRY-RUN] Would remove thunar config" "THUNAR"
+        return 0
+    fi
+
+    log::info "thunar uninstall (Phase 5+ implementation)" "THUNAR"
+    return 0
+}
