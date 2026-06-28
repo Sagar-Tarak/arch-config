@@ -39,6 +39,7 @@ export ARCH_CFG_FLAG_VERBOSE="${ARCH_CFG_FLAG_VERBOSE:-false}"
 export ARCH_CFG_FLAG_LIST_MODULES="${ARCH_CFG_FLAG_LIST_MODULES:-false}"
 export ARCH_CFG_FLAG_MODULE="${ARCH_CFG_FLAG_MODULE:-}"
 export ARCH_CFG_FLAG_VERIFY="${ARCH_CFG_FLAG_VERIFY:-false}"
+export ARCH_CFG_AUR_HELPER="${ARCH_CFG_AUR_HELPER:-paru}"
 
 # ==============================================================================
 # Namespaced API Functions
@@ -84,6 +85,21 @@ args::parse() {
             --verify)
                 ARCH_CFG_FLAG_VERIFY="true"
                 ;;
+            --aur-helper)
+                shift
+                if [[ $# -eq 0 || -z "${1:-}" ]]; then
+                    log::error "--aur-helper requires a helper name (paru or yay)" "ARGS"
+                    args::print_usage >&2
+                    exit 2
+                fi
+                case "${1}" in
+                    paru|yay) ARCH_CFG_AUR_HELPER="${1}" ;;
+                    *)
+                        log::error "Unsupported AUR helper '${1}' — must be paru or yay" "ARGS"
+                        exit 2
+                        ;;
+                esac
+                ;;
             -*)
                 log::error "Unknown option: '${1}'" "ARGS"
                 args::print_usage >&2
@@ -101,6 +117,7 @@ args::parse() {
     export ARCH_CFG_FLAG_HELP ARCH_CFG_FLAG_VERSION ARCH_CFG_DRY_RUN
     export ARCH_CFG_FLAG_YES ARCH_CFG_FLAG_VERBOSE
     export ARCH_CFG_FLAG_LIST_MODULES ARCH_CFG_FLAG_MODULE ARCH_CFG_FLAG_VERIFY
+    export ARCH_CFG_AUR_HELPER
     return 0
 }
 
@@ -121,6 +138,7 @@ Options:
       --list-modules    List all available modules with descriptions, then exit
       --module <name>   Install (or verify) only the named module
       --verify          Run post-install verification checks only, then exit
+      --aur-helper <n>  AUR helper to use: paru (default) or yay
 
 Examples:
   ./install.sh --help

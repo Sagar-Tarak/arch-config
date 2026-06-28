@@ -124,11 +124,14 @@ package::install() {
         if [[ "${pkg}" =~ ^[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+ ]] \
            && package::has_manager "flatpak"; then
             manager="flatpak"
-        elif package::detect_aur_helper &>/dev/null; then
-            manager="$(package::detect_aur_helper)"
         else
             manager="pacman"
         fi
+    fi
+
+    # Normalise "aur" to the configured AUR helper
+    if [[ "${manager}" == "aur" ]]; then
+        manager="${ARCH_CFG_AUR_HELPER:-paru}"
     fi
 
     if package::is_installed "${pkg}" "${manager}"; then
@@ -143,15 +146,16 @@ package::install() {
         return 0
     fi
 
+    local rc=0
     case "${manager}" in
         pacman)
-            sudo pacman -S --needed --noconfirm "${pkg}"
+            sudo pacman -S --needed --noconfirm "${pkg}" || rc=$?
             ;;
         paru|yay)
-            "${manager}" -S --needed --noconfirm "${pkg}"
+            "${manager}" -S --needed --noconfirm "${pkg}" || rc=$?
             ;;
         flatpak)
-            flatpak install --noninteractive "${pkg}"
+            flatpak install --noninteractive "${pkg}" || rc=$?
             ;;
         *)
             log::error "Unsupported package manager: ${manager}" "PKG"
@@ -159,7 +163,6 @@ package::install() {
             ;;
     esac
 
-    local rc=$?
     if [[ "${rc}" -ne 0 ]]; then
         log::error "Failed to install '${pkg}' via ${manager} (exit ${rc})" "PKG"
         return 1
@@ -230,6 +233,11 @@ package::install_list() {
     if [[ -z "${manager}" ]]; then
         log::error "package::install_list: manager required as first argument" "PKG"
         return 1
+    fi
+
+    # Normalise "aur" to the configured AUR helper
+    if [[ "${manager}" == "aur" ]]; then
+        manager="${ARCH_CFG_AUR_HELPER:-paru}"
     fi
 
     if [[ "${#pkgs[@]}" -eq 0 ]]; then

@@ -101,6 +101,9 @@ variables::load() {
     # Default package manager for Arch Linux
     export DEFAULT_PACKAGE_MANAGER="pacman"
 
+    # AUR helper selection — overridden by --aur-helper flag or pre-set env var
+    export ARCH_CFG_AUR_HELPER="${ARCH_CFG_AUR_HELPER:-paru}"
+
     # Dry-run mode — set externally with ARCH_CFG_DRY_RUN=true to prevent
     # any filesystem or package mutations
     export ARCH_CFG_DRY_RUN="${ARCH_CFG_DRY_RUN:-false}"

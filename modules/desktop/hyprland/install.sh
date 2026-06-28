@@ -20,9 +20,7 @@ hyprland::install() {
         slurp
         wl-clipboard
     )
-    local -a _aur_pkgs=(
-        hyprpicker
-    )
+    local -a _aur_pkgs=( hyprpicker )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
         log::info "[DRY-RUN] Would install (pacman): ${_pacman_pkgs[*]}" "HYPRLAND"
@@ -31,13 +29,7 @@ hyprland::install() {
     fi
 
     package::install_list "pacman" "${_pacman_pkgs[@]}" || return 1
-
-    local _aur
-    if _aur="$(package::detect_aur_helper 2>/dev/null)"; then
-        package::install_list "${_aur}" "${_aur_pkgs[@]}" || return 1
-    else
-        log::warn "No AUR helper found — skipping AUR packages: ${_aur_pkgs[*]}" "HYPRLAND"
-    fi
+    aur::install "${_aur_pkgs[@]}" || return 1
 
     # Initialize XDG user directories on first install
     if command -v xdg-user-dirs-update &>/dev/null; then

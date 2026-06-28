@@ -49,7 +49,7 @@ summary::print_environment() {
     _summary::row "Shell"             "${ENV_SHELL:-unknown}"
     _summary::row "Display Server"    "${ENV_DISPLAY_SERVER:-unknown}"
     _summary::row "Package Manager"   "${ENV_PACKAGE_MANAGER:-unknown}"
-    _summary::row "AUR Helper"        "${ENV_AUR_HELPER:-none}"
+    _summary::row "AUR Helper"        "${ARCH_CFG_AUR_HELPER:-paru}"
     _summary::row "Internet"          "${ENV_HAS_INTERNET:-unknown}"
     _summary::row "Dry-Run Mode"      "${ARCH_CFG_DRY_RUN:-false}"
     _summary::row "Auto-Confirm"      "${ARCH_CFG_FLAG_YES:-false}"
