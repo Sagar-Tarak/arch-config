@@ -247,32 +247,16 @@ dotfiles::remove_links() {
 # ==============================================================================
 
 # @description Walks a directory tree and prints relative paths for every
-#              regular file found, one path per line. Avoids a fork per entry
-#              by using a bash glob + recursive function approach.
+#              regular file found, one path per line. Output is sorted and
+#              deterministic; each path is emitted exactly once.
 # @arg1 string root_dir Directory to walk
 # @stdout Relative file paths (no leading slash, no root prefix)
 _dotfiles::walk_files() {
     local root_dir="${1}"
-    _dotfiles::_recurse "${root_dir}" ""
-}
-
-# @description Recursive helper for _dotfiles::walk_files.
-# @arg1 string base  Absolute root directory
-# @arg2 string rel   Current relative path prefix (empty at root level)
-_dotfiles::_recurse() {
-    local base="${1}"
-    local rel="${2}"
-    local entry
-
-    for entry in "${base}${rel:+/}${rel}"/*/  "${base}${rel:+/}${rel}"/*; do
-        # Avoid double-matching directories by checking each entry type
-        if [[ -d "${entry}" && ! -L "${entry}" ]]; then
-            local sub="${entry#${base}/}"
-            sub="${sub%/}"
-            _dotfiles::_recurse "${base}" "${sub}"
-        elif [[ -f "${entry}" && ! -d "${entry}" ]]; then
-            # Print path relative to base
-            printf "%s\n" "${entry#${base}/}"
-        fi
-    done 2>/dev/null || true
+    if [[ ! -d "${root_dir}" ]]; then return 0; fi
+    find "${root_dir}" -type f -not -name ".gitkeep" \
+        | sort \
+        | while IFS= read -r f; do
+            printf "%s\n" "${f#${root_dir}/}"
+          done
 }

@@ -115,7 +115,13 @@ _flow::run_full() {
     log::step "Enabling Services"
     _flow::enable_services || true   # service failures are non-fatal; logged and continued
 
-    # 6. Post-install verification
+    # 6. Post-install verification (skipped in dry-run — nothing was installed)
+    if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
+        log::info "Verification skipped — dry-run mode: nothing was installed." "FLOW"
+        summary::print_final
+        return 0
+    fi
+
     log::step "Post-install Verification"
     _flow::verify
 
