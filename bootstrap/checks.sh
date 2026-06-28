@@ -244,8 +244,23 @@ checks::check_project_structure() {
     return 0
 }
 
-# @description Verifies Hyprland is installed. Forge is a post-install
-#              bootstrapper — it requires an existing Hyprland installation.
+# @description Verifies a Wayland session is active.
+#              Forge configures a Wayland desktop — it must run inside one.
+# @noargs
+# @exit 0 if WAYLAND_DISPLAY or XDG_SESSION_TYPE=wayland is set, 1 otherwise
+checks::check_wayland() {
+    if [[ -n "${WAYLAND_DISPLAY:-}" ]] || [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]]; then
+        log::debug "Wayland check passed." "CHECKS"
+        return 0
+    fi
+    log::error "No Wayland session detected." "CHECKS"
+    log::error "Forge must be run from within a Hyprland session." "CHECKS"
+    log::error "Boot into Hyprland via archinstall, open a terminal, then run Forge." "CHECKS"
+    return 1
+}
+
+# @description Verifies Hyprland is installed. Forge is a desktop configuration
+#              framework — it requires an existing Hyprland installation.
 #              If Hyprland is missing, the installer should not proceed.
 # @noargs
 # @exit 0 if hyprctl is in PATH, 1 otherwise
@@ -255,7 +270,7 @@ checks::check_hyprland() {
         return 0
     fi
     log::error "Hyprland is not installed." "CHECKS"
-    log::error "Forge requires an existing Arch Linux installation with Hyprland." "CHECKS"
+    log::error "Forge is a desktop configuration framework — it requires Hyprland." "CHECKS"
     log::error "Install Arch with archinstall, select the Hyprland desktop profile," "CHECKS"
     log::error "reboot into Hyprland, then run Forge." "CHECKS"
     return 1
@@ -312,13 +327,14 @@ checks::run_all() {
     local overall=0
 
     # --- Blocking checks: installer should not proceed if these fail ---
-    _checks::run_one "OS is Arch Linux"        checks::check_arch             || overall=1
-    _checks::run_one "Hyprland is installed"   checks::check_hyprland         || overall=1
+    _checks::run_one "OS is Arch Linux"         checks::check_arch             || overall=1
+    _checks::run_one "Wayland session active"   checks::check_wayland          || overall=1
+    _checks::run_one "Hyprland is installed"    checks::check_hyprland         || overall=1
     _checks::run_one "Build tools (base-devel)" checks::check_build_tools      || overall=1
-    _checks::run_one "Internet connectivity"   checks::check_internet          || overall=1
+    _checks::run_one "Internet connectivity"    checks::check_internet         || overall=1
     _checks::run_one "Disk space (>= 10 GiB)"  checks::check_disk_space        || overall=1
-    _checks::run_one "Not running as root"     checks::check_root              || overall=1
-    _checks::run_one "Project structure"       checks::check_project_structure || overall=1
+    _checks::run_one "Not running as root"      checks::check_root             || overall=1
+    _checks::run_one "Project structure"        checks::check_project_structure || overall=1
 
     # --- Informational checks: warn but do not block ---
     checks::check_networkmanager

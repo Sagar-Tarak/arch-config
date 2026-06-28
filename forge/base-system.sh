@@ -9,11 +9,11 @@ _FORGE_BASE_SYSTEM_INCLUDED=1
 # Forge — Base System Definition
 # File: forge/base-system.sh
 #
-# Philosophy (v2):
-#   Forge is a POST-INSTALL workstation bootstrapper.
+# Philosophy (v3):
+#   Forge is a desktop configuration framework.
 #   It assumes the user already has Arch Linux + Hyprland installed via archinstall.
-#   Forge adds the personal workstation layer on top of that clean base:
-#   applications, dotfiles, CLI tools, and theming.
+#   Forge installs and configures the Hyprland desktop environment layer only —
+#   the visual stack, theming, terminal, and shell that make the desktop usable.
 #
 #   Forge does NOT install:
 #     - The operating system
@@ -21,8 +21,11 @@ _FORGE_BASE_SYSTEM_INCLUDED=1
 #     - The Hyprland compositor itself
 #     - NetworkManager, PipeWire, or the audio stack
 #     - The base system (base-devel, git, curl)
+#     - Development tools (editors, version control UIs, language runtimes)
+#     - Browsers
 #
-#   Those belong to archinstall.
+#   Those are the user's responsibility (archinstall + manual selection).
+#   Developer tools are available as optional modules — see packages/optional.txt.
 #
 # Usage:
 #   source forge/base-system.sh
@@ -32,27 +35,26 @@ _FORGE_BASE_SYSTEM_INCLUDED=1
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# Ordered module list — the Forge workstation layer.
+# Base module list — the Forge desktop layer.
+#
+# Only modules that are direct components of the Forge desktop belong here.
+# Modules are installed in array order. Each module must appear after all
+# modules it depends on.
 #
 # Prerequisites (managed by archinstall, NOT Forge):
-#   - Arch Linux
+#   - Arch Linux + base-devel + git
 #   - Hyprland + xdg-desktop-portal-hyprland
 #   - NetworkManager (enabled)
 #   - PipeWire + WirePlumber (enabled)
-#   - base-devel (for AUR helper)
-#   - git
-#
-# Modules are installed in array order. A module must appear after all modules
-# it depends on.
 # ------------------------------------------------------------------------------
 readonly -a FORGE_BASE_MODULES=(
     # 1. Core: initialize the framework runtime directory structure
     "core"
 
-    # 2. Fonts: must come first — all other desktop apps depend on them
+    # 2. Fonts: must come before all other desktop apps
     "desktop/fonts"
 
-    # 3. Hyprland extras: tools that archinstall does not install by default
+    # 3. Desktop shell — status bar, lock screen, idle, wallpaper, launcher, notifications
     "desktop/waybar"       # status bar
     "desktop/hyprlock"     # screen locker
     "desktop/hypridle"     # idle management
@@ -61,33 +63,32 @@ readonly -a FORGE_BASE_MODULES=(
     "desktop/swaync"       # notification center
     "desktop/thunar"       # graphical file manager
 
-    # 4. Terminal
-    "terminal/ghostty"     # Ghostty terminal emulator (AUR)
+    # 4. Terminal — the primary interface to the desktop
+    "terminal/ghostty"     # GPU-accelerated terminal (AUR)
 
-    # 5. Shell
-    "shell/fish"           # Fish shell + Starship prompt + Atuin history
+    # 5. Shell — enhances the terminal experience within the desktop
+    "shell/fish"           # Fish shell + Starship prompt
 
-    # 6. Editors
-    "editor/nvim"          # Neovim (LazyVim bootstrap on first launch)
+    # 6. Theming — wallpaper-driven color generation for all desktop components
+    "desktop/matugen"      # generates Material Design 3 palette from wallpaper
 
-    # 7. Browser
-    "browser/firefox"      # Firefox
-
-    # 8. Development tools
-    "workspace/git"        # GitHub CLI + Lazygit (git itself is from archinstall)
-
-    # 9. Theming: wallpaper-driven color generation
-    "desktop/matugen"      # matugen — generates colors from wallpaper
-
-    # 10. Dotfiles: always last — links configs after all tools are installed
+    # 7. Dotfiles — always last; links configs after all tools are installed
     "dotfiles"
 )
 
 # ------------------------------------------------------------------------------
-# Workspace extensions — NOT part of the base workstation.
-# Installed on demand: forge install <name>  (future CLI)
-# Defined here for documentation purposes only.
+# Optional modules — NOT part of the Forge desktop.
+# Install individually: ./install.sh --module <name>
+#
+# See packages/optional.txt for the full list of optional packages.
 # ------------------------------------------------------------------------------
 #
-# forge install docker   → workspace/docker
-# forge install node     → workspace/node
+# Development:
+#   editor/nvim        — Neovim with LazyVim
+#   workspace/git      — GitHub CLI + Lazygit
+#   workspace/docker   — Docker + Compose
+#   workspace/node     — Node.js + npm
+#
+# Browser:
+#   browser/firefox    — Firefox
+#   browser/zen        — Zen Browser (AUR)

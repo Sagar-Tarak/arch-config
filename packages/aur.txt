@@ -1,10 +1,12 @@
 # ==============================================================================
-# Forge — AUR package list
+# Forge — AUR package list (desktop packages only)
 # Format: one package per line; lines starting with # are comments.
 # Requires paru (auto-bootstrapped) to install.
 #
 # Only list packages that are NOT available in the official Arch repositories.
 # Run `pacman -Ss <name>` to check before adding anything here.
+#
+# Developer tools that happen to be AUR-only belong in packages/optional.txt.
 # ==============================================================================
 
 # --- Terminal -----------------------------------------------------------------
@@ -18,6 +20,3 @@ swaync              # SwayNC notification center
 
 # --- Theming ------------------------------------------------------------------
 matugen-bin         # wallpaper-driven Material You color generation
-
-# --- Shell history ------------------------------------------------------------
-atuin               # encrypted shell history with sync

@@ -89,6 +89,39 @@ test_base_system_includes_shell_fish() {
     return 1
 }
 
+test_base_system_includes_desktop_matugen() {
+    local m
+    for m in "${FORGE_BASE_MODULES[@]}"; do
+        [[ "${m}" == "desktop/matugen" ]] && return 0
+    done
+    return 1
+}
+
+# Optional modules must NOT be in the base install (v3: desktop-only)
+test_base_system_excludes_editor_nvim() {
+    local m
+    for m in "${FORGE_BASE_MODULES[@]}"; do
+        [[ "${m}" == "editor/nvim" ]] && return 1
+    done
+    return 0
+}
+
+test_base_system_excludes_browser_firefox() {
+    local m
+    for m in "${FORGE_BASE_MODULES[@]}"; do
+        [[ "${m}" == "browser/firefox" ]] && return 1
+    done
+    return 0
+}
+
+test_base_system_excludes_workspace_git() {
+    local m
+    for m in "${FORGE_BASE_MODULES[@]}"; do
+        [[ "${m}" == "workspace/git" ]] && return 1
+    done
+    return 0
+}
+
 test_base_system_does_not_include_workspace_docker() {
     local m
     for m in "${FORGE_BASE_MODULES[@]}"; do
@@ -106,8 +139,9 @@ test_base_system_does_not_include_workspace_node() {
 }
 
 test_base_system_module_count_is_reasonable() {
+    # Desktop-only base: 10–14 modules expected
     local count="${#FORGE_BASE_MODULES[@]}"
-    [[ "${count}" -ge 10 ]]
+    [[ "${count}" -ge 10 && "${count}" -le 14 ]]
 }
 
 # ---- Tests: module discovery ----
@@ -176,6 +210,10 @@ _run_test test_base_system_has_dotfiles_last
 _run_test test_base_system_excludes_desktop_hyprland
 _run_test test_base_system_includes_terminal_ghostty
 _run_test test_base_system_includes_shell_fish
+_run_test test_base_system_includes_desktop_matugen
+_run_test test_base_system_excludes_editor_nvim
+_run_test test_base_system_excludes_browser_firefox
+_run_test test_base_system_excludes_workspace_git
 _run_test test_base_system_does_not_include_workspace_docker
 _run_test test_base_system_does_not_include_workspace_node
 _run_test test_base_system_module_count_is_reasonable

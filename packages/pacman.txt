@@ -1,18 +1,21 @@
 # ==============================================================================
-# Forge — pacman package list
+# Forge — pacman package list (desktop packages only)
 # Format: one package per line; lines starting with # are comments.
 # Consumed by packages::parse_file during installation.
 #
-# Philosophy (v2):
-#   These are WORKSTATION packages only.
+# Philosophy (v3):
+#   Only packages that are direct runtime dependencies of the Forge desktop.
+#   Forge is a desktop configuration framework — not a workstation provisioner.
+#
 #   Forge assumes the following are already installed by archinstall:
 #     base-devel, git, curl, wget, networkmanager, pipewire, wireplumber,
 #     hyprland, xdg-desktop-portal-hyprland, xdg-utils, xdg-user-dirs,
 #     mesa, polkit
-#   Do not add OS-level packages here.
+#
+#   Developer tools, browsers, and editors belong in packages/optional.txt.
 # ==============================================================================
 
-# --- Hyprland extras (not included in archinstall Hyprland profile) ----------
+# --- Hyprland desktop components (not included in archinstall Hyprland profile) ---
 waybar              # status bar
 hyprpaper           # wallpaper daemon
 hyprlock            # screen locker
@@ -21,55 +24,38 @@ grim                # screenshot tool
 slurp               # screen area selection
 wl-clipboard        # Wayland clipboard utilities
 rofi-wayland        # application launcher (Wayland fork)
-polkit-gnome        # polkit authentication agent for GNOME apps
+polkit-gnome        # polkit authentication agent
 brightnessctl       # screen brightness control
 playerctl           # media player control (media keys)
 pavucontrol         # PulseAudio/PipeWire volume GUI
 
-# --- Desktop utilities -------------------------------------------------------
+# --- File management ----------------------------------------------------------
 thunar              # graphical file manager
-thunar-volman       # removable media management for Thunar
-tumbler             # thumbnail service for Thunar
+thunar-volman       # removable media management
+tumbler             # thumbnail service
 gvfs                # virtual filesystem support (USB, MTP, network shares)
 
-# --- Terminal -----------------------------------------------------------------
+# --- Terminal and shell -------------------------------------------------------
 fish                # Fish shell
 starship            # cross-shell prompt
 
-# --- Editors -----------------------------------------------------------------
-neovim              # terminal editor (LazyVim bootstraps on first launch)
-
-# --- Browser -----------------------------------------------------------------
-firefox             # web browser
-
-# --- Fonts -------------------------------------------------------------------
-ttf-jetbrains-mono-nerd   # primary monospace font (terminal, editor)
+# --- Fonts (required by Waybar, Rofi, and terminal) --------------------------
+ttf-jetbrains-mono-nerd   # primary monospace font
 ttf-noto-nerd             # Noto with Nerd Font icons
 noto-fonts                # broad Unicode coverage
 noto-fonts-emoji          # emoji support
 ttf-font-awesome          # icon font (Waybar)
 
-# --- CLI productivity --------------------------------------------------------
+# --- Terminal productivity (used by Rofi scripts and shell config) ------------
 ripgrep             # fast recursive search (rg)
 fd                  # modern find replacement
 fzf                 # fuzzy finder
 bat                 # syntax-highlighted cat
 eza                 # modern ls with icons
 zoxide              # smart cd with frecency
-yazi                # terminal file manager
-lazygit             # terminal Git UI
-jq                  # JSON processor
+jq                  # JSON processor (Waybar scripts)
 yq                  # YAML/JSON/TOML processor
-tree                # directory tree display
 
-# --- System info + monitoring ------------------------------------------------
-fastfetch           # system info display
+# --- System info + monitoring -------------------------------------------------
+fastfetch           # system info display (desktop welcome screen)
 btop                # resource monitor
-
-# --- Developer utilities -----------------------------------------------------
-github-cli          # GitHub CLI (gh)
-openssh             # SSH client and server
-rsync               # file synchronisation
-zip                 # ZIP archive creation
-unzip               # ZIP archive extraction
-p7zip               # 7-Zip archive support

@@ -1,0 +1,49 @@
+# ==============================================================================
+# Forge — Optional packages
+# These are NOT installed by default. Install individual modules with:
+#
+#   ./install.sh --module editor/nvim
+#   ./install.sh --module workspace/git
+#   ./install.sh --module browser/firefox
+#
+# This file is documentation only — it is not consumed by the installer.
+# Packages are installed by each module's install.sh when that module runs.
+# ==============================================================================
+
+# --- Editor -------------------------------------------------------------------
+# Module: editor/nvim
+neovim              # terminal editor (LazyVim bootstraps on first launch)
+
+# --- Development tools --------------------------------------------------------
+# Module: workspace/git
+github-cli          # GitHub CLI (gh)
+lazygit             # terminal Git UI
+
+# Module: workspace/docker
+docker
+docker-compose
+docker-buildx
+
+# Module: workspace/node
+nodejs
+npm
+
+# --- Browser ------------------------------------------------------------------
+# Module: browser/firefox
+firefox
+
+# Module: browser/zen (AUR)
+# zen-browser-bin
+
+# --- Terminal extras (AUR) ---------------------------------------------------
+# Install manually or add to an optional module:
+atuin               # encrypted shell history with sync
+yazi                # terminal file manager
+
+# --- Utilities ----------------------------------------------------------------
+openssh             # SSH client and server
+rsync               # file synchronisation
+zip                 # ZIP archive creation
+unzip               # ZIP archive extraction
+p7zip               # 7-Zip archive support
+tree                # directory tree display

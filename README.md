@@ -1,24 +1,36 @@
 # Forge
 
-Post-install workstation bootstrapper for Arch Linux + Hyprland.
+Forge is a post-install desktop configuration framework for Arch Linux with Hyprland.
 
-Forge does not install Arch Linux. It configures it.
+It is not an Arch installer. It does not provision a system. It configures a desktop.
+
+---
+
+## What Forge is
+
+You install Arch Linux. You install Hyprland. Then you run Forge.
+
+Forge takes a fresh Hyprland session and turns it into a polished, cohesive desktop: a configured status bar, lock screen, launcher, notification center, terminal, shell, and a wallpaper-driven Material Design color scheme that ties all of it together.
+
+That is all it does.
 
 ---
 
 ## Prerequisites
 
-Before running Forge you need:
+| Requirement | How to get it |
+|---|---|
+| Arch Linux | Install with [archinstall](https://wiki.archlinux.org/title/Archinstall) |
+| Hyprland | Select the Hyprland desktop profile during archinstall |
+| base-devel | Included in the archinstall Hyprland profile |
+| git | Included in the archinstall Hyprland profile |
+| Internet | Required for package installation |
 
-1. **Arch Linux** installed via [archinstall](https://wiki.archlinux.org/title/Archinstall)
-2. **Hyprland desktop profile** selected during archinstall
-3. Rebooted into Hyprland
-
-That's it. Forge takes over from there.
+Boot into Hyprland, open a terminal, then run Forge.
 
 ---
 
-## Quickstart
+## Installation
 
 ```bash
 git clone git@github.com:Sagar-Tarak/forge.git
@@ -26,17 +38,15 @@ cd forge
 ./install.sh
 ```
 
-Follow the post-install next steps printed at the end.
+Forge will verify all assumptions before touching anything. If something is missing, it exits with a clear explanation.
 
 ---
 
-## What Forge adds
+## What Forge installs
 
-Forge layers a complete personal development workstation on top of a clean Arch + Hyprland base.
+### Desktop shell
 
-### Desktop
-
-| Tool | Purpose |
+| Component | Purpose |
 |---|---|
 | Waybar | Status bar |
 | Rofi | Application launcher |
@@ -47,67 +57,73 @@ Forge layers a complete personal development workstation on top of a clean Arch 
 | Thunar | Graphical file manager |
 | Polkit GNOME | Authentication dialogs |
 
-### Development environment
+### Terminal
 
-| Tool | Purpose |
+| Component | Purpose |
 |---|---|
-| Neovim (LazyVim) | Editor |
-| Fish + Starship | Shell + prompt |
-| Atuin | Encrypted shell history |
-| GitHub CLI | GitHub from the terminal |
-| Lazygit | Terminal Git UI |
-| Ghostty | GPU-accelerated terminal |
+| Ghostty | GPU-accelerated terminal emulator |
+| Fish | Shell |
+| Starship | Cross-shell prompt |
 
-### CLI toolkit
+### Fonts
 
-| Tool | Purpose |
+| Font | Purpose |
 |---|---|
-| Ripgrep | Fast search |
-| fd | Modern `find` |
-| fzf | Fuzzy finder |
-| bat | Syntax-highlighted `cat` |
-| eza | Modern `ls` |
-| zoxide | Smart `cd` |
-| yazi | Terminal file manager |
-| btop | Resource monitor |
-| fastfetch | System info |
-| jq / yq | JSON / YAML tools |
+| JetBrainsMono Nerd Font | Terminal and editor |
+| Font Awesome | Waybar icons |
+| Noto Fonts | Unicode + emoji |
 
 ### Theming
 
 | Tool | Purpose |
 |---|---|
-| Matugen | Wallpaper-driven Material You colors |
-| JetBrainsMono Nerd Font | Primary monospace font |
-| Font Awesome | Icon font |
-| Noto Fonts | Unicode + emoji coverage |
+| Matugen | Generates a Material Design 3 color palette from your wallpaper |
 
-### Browser
+### CLI productivity
 
-Firefox.
+Ripgrep, fd, fzf, bat, eza, zoxide, jq, yq, fastfetch, btop.
+These are terminal tools used by Forge's shell config and Rofi scripts.
 
 ---
 
 ## What Forge does NOT install
 
-These come from archinstall and are assumed to be present:
+These are your responsibility. Forge assumes they exist.
 
-- Arch Linux base system
-- Hyprland compositor
-- NetworkManager
-- PipeWire / WirePlumber
-- Graphics drivers
-- base-devel / git / curl
-- Display manager (SDDM)
+| Component | Where it comes from |
+|---|---|
+| Arch Linux | archinstall |
+| Hyprland | archinstall (Hyprland profile) |
+| NetworkManager | archinstall |
+| PipeWire / WirePlumber | archinstall |
+| Graphics drivers | archinstall |
+| base-devel / git / curl | archinstall |
+| Neovim | Optional module |
+| Firefox | Optional module |
+| GitHub CLI / Lazygit | Optional module |
+| Docker | Optional module |
 
-If any of these are missing, the pre-flight check will tell you.
+---
+
+## Optional modules
+
+Developer tools are not part of the desktop and are not installed by default.
+Install them individually:
+
+```bash
+./install.sh --module editor/nvim
+./install.sh --module workspace/git
+./install.sh --module browser/firefox
+./install.sh --module workspace/docker
+```
+
+See [packages/optional.txt](packages/optional.txt) for the full list of optional packages.
 
 ---
 
 ## Wallpaper-driven theming
 
-Forge uses [matugen](https://github.com/InioX/matugen) to generate a Material Design 3 color
-scheme from your wallpaper. Every application reads from the same generated palette.
+Forge uses [matugen](https://github.com/InioX/matugen) to generate a Material Design 3 color scheme from your wallpaper. Every desktop component reads from the same generated palette — Hyprland borders, Waybar, Rofi, Ghostty, SwayNC, Hyprlock, and Fish all update at once.
 
 **Change your wallpaper:**
 
@@ -115,19 +131,26 @@ scheme from your wallpaper. Every application reads from the same generated pale
 bash scripts/set-wallpaper.sh ~/Pictures/my-photo.jpg
 ```
 
-This updates the wallpaper, regenerates all colors, and reloads the desktop in one step.
+---
 
-**Apps that update when you change wallpaper:**
+## Pre-flight checks
 
-| App | What changes |
+Forge verifies the following before doing anything:
+
+| Check | Type |
 |---|---|
-| Hyprland | Window border colors |
-| Waybar | Bar and widget colors |
-| Rofi | Selection and background colors |
-| Ghostty | Terminal palette (16 ANSI colors) |
-| SwayNC | Notification colors |
-| Hyprlock | Lock screen accent and text |
-| Fish | Syntax highlighting |
+| OS is Arch Linux | Required |
+| Wayland session active | Required |
+| Hyprland is installed | Required |
+| base-devel / makepkg available | Required |
+| Internet connectivity | Required |
+| Disk space (≥ 10 GiB) | Required |
+| Not running as root | Required |
+| NetworkManager running | Warning |
+| PipeWire running | Warning |
+| Running in a VM | Info |
+
+If any required check fails, Forge stops immediately with instructions.
 
 ---
 
@@ -138,23 +161,7 @@ This updates the wallpaper, regenerates all colors, and reloads the desktop in o
 chsh -s $(which fish)
 ```
 
-**Log out and back into Hyprland:**
-```
-Super+M → log out → log back in
-```
-
----
-
-## Updating
-
-Pull the latest configs and redeploy:
-
-```bash
-git pull
-./install.sh --module dotfiles
-matugen image ~/Pictures/Wallpapers/current.jpg
-bash scripts/reload.sh
-```
+Log out and back in to apply the shell change.
 
 ---
 
@@ -172,9 +179,20 @@ bash scripts/reload.sh
 **Examples:**
 
 ```bash
-./install.sh --dry-run           # preview what will happen
-./install.sh --module shell/fish # reinstall fish config only
-./install.sh --verify            # check installed state
+./install.sh --dry-run                # preview what will happen
+./install.sh --module terminal/ghostty # reinstall Ghostty config only
+./install.sh --verify                 # check installed state
+```
+
+---
+
+## Updating
+
+```bash
+git pull
+./install.sh --module dotfiles
+matugen image ~/Pictures/Wallpapers/current.jpg
+bash scripts/reload.sh
 ```
 
 ---
@@ -197,42 +215,25 @@ forge/
   install.sh          entry point
   uninstall.sh        removal entry point
   dotfiles/           configs deployed to ~/.config/ via symlinks
-    hypr/             Hyprland + colors
-    waybar/           Waybar config + stylesheet
-    rofi/             Rofi layout + theme
-    ghostty/          Ghostty terminal config
-    fish/             Fish shell config
-    nvim/             Neovim (LazyVim)
-    matugen/          matugen config + color templates
+    hypr/             Hyprland configuration + color fallbacks
+    waybar/           status bar config + stylesheet
+    rofi/             launcher layout + theme
+    ghostty/          terminal config
+    fish/             shell config
+    matugen/          color generation templates
     swaync/           notification center config
     hyprlock/         lock screen config
-  modules/            per-tool install / verify / uninstall
-  packages/           pacman.txt + aur.txt (workstation packages only)
+    hyprpaper/        wallpaper config
+  modules/            per-component install / verify / uninstall
+  packages/
+    pacman.txt        desktop packages (installed by default)
+    aur.txt           AUR desktop packages (installed by default)
+    optional.txt      developer tools (installed only if module selected)
   assets/             wallpapers, icons, cursors
   scripts/            set-wallpaper.sh, reload.sh
-  forge/              base system definition + services
+  forge/              base system definition
   lib/                shared bash libraries
   installer/          pipeline orchestration
-  bootstrap/          environment detection + pre-flight checks
+  bootstrap/          preflight checks + environment detection
   tests/              integration tests
 ```
-
----
-
-## Pre-flight checks
-
-Forge verifies the following before installing anything:
-
-| Check | Type |
-|---|---|
-| OS is Arch Linux | Required |
-| Hyprland is installed | Required |
-| base-devel / makepkg available | Required |
-| Internet connectivity | Required |
-| Disk space (≥ 10 GiB) | Required |
-| Not running as root | Required |
-| NetworkManager running | Warning |
-| PipeWire running | Warning |
-| Running in a VM | Info |
-
-If the Hyprland check fails, Forge exits immediately with instructions to use archinstall first.
