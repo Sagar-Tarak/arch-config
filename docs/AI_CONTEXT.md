@@ -1,23 +1,33 @@
-# Arch Linux Configuration Framework: AI Context & Architectural Specification
+# Forge: AI Context & Architectural Specification
 
-This document serves as the single source of truth and permanent context for all AI systems (e.g., Gemini, Claude, ChatGPT, Copilot) interacting with, refactoring, or extending this repository. All code contributions, script modifications, and architecture updates must strictly adhere to the guidelines, standards, and design philosophies detailed below.
+This document is the single source of truth for all AI systems working on this repository. All code contributions, script modifications, and architecture updates must adhere to the guidelines below.
 
 ---
 
 ## 1. Project Vision
 
-This project is a **declarative, modular, reproducible, and production-grade Arch Linux configuration framework**.
+**Forge is an opinionated Hyprland dotfiles project for developers.**
 
-### What It Is Not
-* **Not a Dotfiles Repository**: It is not a basic compilation of configuration files symlinked via standard GNU Stow.
-* **Not a Shell Script Collection**: It is not a loose assortment of disjointed shell scripts.
-* **Not a One-Time Installer**: It is not a fragile run-once installer that breaks on subsequent executions.
+A user clones the repository, runs `./install.sh` on a fresh Arch Linux installation, reboots, and is immediately using the Forge desktop. No wizard. No profile selection. One desktop.
 
 ### What It Is
-* **Modular Configuration Engine**: A framework where system configurations, application configurations, package installations, and environmental variables are grouped into self-contained, independent modules.
-* **Infrastructure-as-Code for Desktop OS**: An environment configuration utility that manages system states declaratively, tracking packages, services, configurations, and files in a versioned repository.
-* **Single-Command Bootstrapper**: A tool capable of transforming a clean, fresh Arch Linux installation into a fully personalized, production-grade workstation or server via a single execution of `./install.sh`.
-* **Enterprise Grade**: Designed with strict safety parameters (dry-runs, configuration backups, validation testing, robust logging, and rollback options).
+* **Dotfiles project**: Real configuration files for every tool in the Forge desktop, deployed as symlinks into `~/.config/`.
+* **Self-reproducing desktop**: The installer exists solely to reproduce the Forge desktop automatically — packages, services, and dotfiles in a single command.
+* **Single-command bootstrapper**: `./install.sh` transforms a clean Arch Linux install into a fully configured Hyprland workstation.
+* **Safe and idempotent**: Dry-run support, automatic config backups, and re-entrant execution — running the installer twice is safe.
+
+### What It Is Not
+* **Not a configuration framework**: Forge does not support profiles, desktop selection, or a plugin marketplace.
+* **Not a shell script collection**: Every component is structured, tested, and has a defined lifecycle (install / verify / uninstall).
+* **Not a one-time installer**: The installer is idempotent and can be re-run to repair or update an existing installation.
+
+### Installer Scope (hard boundary)
+The installer does exactly these things and nothing else:
+1. Install packages (pacman + AUR)
+2. Enable systemd services
+3. Deploy dotfiles via symlinks
+4. Verify the installation
+5. Provide uninstall / rollback
 
 ---
 

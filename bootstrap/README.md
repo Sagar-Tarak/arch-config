@@ -1,6 +1,6 @@
 # Bootstrap System
 
-The Bootstrap System is the first layer of the Arch Linux Configuration Framework.
+The Bootstrap System is the first layer of the Forge installer.
 It prepares the execution environment before any module, package, or configuration
 step runs. Nothing in the installer should execute until `bootstrap::init` returns
 successfully.

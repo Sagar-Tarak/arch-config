@@ -12,9 +12,9 @@ readonly SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # ==============================================================================
 # Forge — Main Installer Entry Point
 # File: install.sh
-# Purpose: Thin orchestration entrypoint. Bootstraps the framework, loads all
-#          installer components and the Forge base system definition, parses
-#          CLI arguments, then delegates to flow::run for the full pipeline.
+# Purpose: Thin orchestration entrypoint. Bootstraps Forge, loads all
+#          installer components and the base system definition, parses CLI
+#          arguments, then delegates to flow::run for the full pipeline.
 #          Do not add business logic here — extend installer/ components instead.
 # Usage:
 #   ./install.sh [OPTIONS]
