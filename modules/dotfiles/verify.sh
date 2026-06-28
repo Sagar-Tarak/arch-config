@@ -5,8 +5,9 @@ export LC_ALL=C.UTF-8
 if [[ -n "${_MODULE_DOTFILES_VERIFY_INCLUDED:-}" ]]; then return 0; fi
 _MODULE_DOTFILES_VERIFY_INCLUDED=1
 
-# @description Verifies that dotfiles symlinks are correctly deployed.
-# @exit 0 if links are healthy, 1 otherwise
+# @description Dotfile deployment is not yet implemented (Phase 6).
+# @exit 2 NOT_IMPLEMENTED — tells the verification report to display ○ NOT IMPLEMENTED
 dotfiles::verify() {
-    dotfiles::verify_links "${DOTFILES_DIR}" "${HOME}"
+    log::info "Dotfile deployment not yet implemented — Phase 6" "DOTFILES"
+    return 2
 }

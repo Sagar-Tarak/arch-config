@@ -1,39 +1,39 @@
 #!/usr/bin/env bash
-
-# Use strict bash options
 set -Eeuo pipefail
-
-# Ensure script is run from a clean environment
 export LC_ALL=C.UTF-8
 
-# Double-sourcing guard
-if [[ -n "${_VERIFY_SH_INCLUDED:-}" ]]; then
-    return 0
-fi
+if [[ -n "${_VERIFY_SH_INCLUDED:-}" ]]; then return 0; fi
 _VERIFY_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Verification Aggregator
+# Forge — Verification Aggregator
 # File: installer/verify.sh
 # Purpose: Runs each module's verify() function and aggregates results into a
-#          single pass/fail report. Distinct from bootstrap/checks.sh (which
-#          runs pre-flight system checks); this file verifies post-install state.
+#          structured report. Four possible states per module:
+#
+#            PASS            — verify function ran and returned 0
+#            FAIL            — verify function ran and returned non-zero
+#            SKIPPED         — verify function returned exit code 3
+#                              (module not applicable on this system)
+#            NOT_IMPLEMENTED — module has no verify function, or returned 2
+#                              (feature planned but not yet deployable)
+#
 # Dependencies: lib/logger.sh, installer/module_loader.sh
 # Public API:
-#   verify::run_module    - Verifies one named module and records the result
-#   verify::run_selected  - Verifies a given list of module names
-#   verify::run_all       - Verifies every discovered module
-#   verify::print_report  - Prints the full pass/fail table and final tally
-#   verify::has_failures  - Returns 0 if any module failed verification
-#   verify::reset         - Clears all recorded results (for test isolation)
-# Usage Example:
-#   source installer/verify.sh
-#   verify::run_selected "git" "nvim" "shell"
-#   verify::print_report
-#   verify::has_failures && exit 40
+#   verify::run_module        - Verifies one module and records the result
+#   verify::run_selected      - Verifies a list of modules
+#   verify::run_all           - Verifies every discovered module
+#   verify::print_report      - Prints the full result table and tally
+#   verify::has_failures      - Returns 0 if any module recorded FAIL
+#   verify::reset             - Clears all results (for test isolation)
+# Exit-code contract for module verify functions:
+#   0  → PASS
+#   2  → NOT_IMPLEMENTED  (planned but not yet done)
+#   3  → SKIPPED          (intentionally not applicable)
+#   *  → FAIL
 # ==============================================================================
 
-# Associative array: module_name → "PASS" | "FAIL"
+# Associative array: module_name → "PASS" | "FAIL" | "SKIPPED" | "NOT_IMPLEMENTED"
 declare -A _VERIFY_RESULTS=()
 
 # ==============================================================================
@@ -41,7 +41,7 @@ declare -A _VERIFY_RESULTS=()
 # ==============================================================================
 
 # @description Calls module::verify for a single named module and stores the
-#              result (PASS or FAIL) in _VERIFY_RESULTS.
+#              result in _VERIFY_RESULTS using the four-state scheme above.
 # @arg1 string name Module name
 # @exit 0 Always (failures are recorded, not propagated)
 verify::run_module() {
@@ -53,11 +53,15 @@ verify::run_module() {
 
     log::info "Verifying: ${name}" "VERIFY"
 
-    if module::verify "${name}"; then
-        _VERIFY_RESULTS["${name}"]="PASS"
-    else
-        _VERIFY_RESULTS["${name}"]="FAIL"
-    fi
+    local rc=0
+    module::verify "${name}" || rc=$?
+
+    case "${rc}" in
+        0)  _VERIFY_RESULTS["${name}"]="PASS" ;;
+        2)  _VERIFY_RESULTS["${name}"]="NOT_IMPLEMENTED" ;;
+        3)  _VERIFY_RESULTS["${name}"]="SKIPPED" ;;
+        *)  _VERIFY_RESULTS["${name}"]="FAIL" ;;
+    esac
 
     return 0
 }
@@ -83,8 +87,8 @@ verify::run_all() {
     done < <(module_loader::list)
 }
 
-# @description Prints the full verification report to stderr: one line per
-#              module showing ✔ PASS or ✖ FAIL, followed by a tally.
+# @description Prints the full verification report to stderr.
+#              ✔ PASS, ✖ FAIL, ⊘ SKIPPED, ○ NOT_IMPLEMENTED
 # @noargs
 # @exit 0 Always
 verify::print_report() {
@@ -95,11 +99,10 @@ verify::print_report() {
         return 0
     fi
 
-    local pass=0
-    local fail=0
+    local pass=0 fail=0 skipped=0 not_impl=0
     local name
 
-    # Sort module names for deterministic output
+    # Sort for deterministic output
     local -a sorted_names=()
     while IFS= read -r name; do
         sorted_names+=("${name}")
@@ -107,29 +110,42 @@ verify::print_report() {
 
     for name in "${sorted_names[@]}"; do
         local result="${_VERIFY_RESULTS[${name}]}"
-        if [[ "${result}" == "PASS" ]]; then
-            printf "  %s✔%s  %s\n" "${BOLD_GREEN:-}" "${RESET:-}" "${name}" >&2
-            pass=$(( pass + 1 ))
-        else
-            printf "  %s✖%s  %s\n" "${BOLD_RED:-}" "${RESET:-}" "${name}" >&2
-            fail=$(( fail + 1 ))
-        fi
+        case "${result}" in
+            PASS)
+                printf "  %s✔%s  %-30s %s\n" \
+                    "${BOLD_GREEN:-}" "${RESET:-}" "${name}" "PASS" >&2
+                pass=$(( pass + 1 ))
+                ;;
+            FAIL)
+                printf "  %s✖%s  %-30s %s\n" \
+                    "${BOLD_RED:-}" "${RESET:-}" "${name}" "FAIL" >&2
+                fail=$(( fail + 1 ))
+                ;;
+            SKIPPED)
+                printf "  %s⊘%s  %-30s %s\n" \
+                    "${BOLD_YELLOW:-}" "${RESET:-}" "${name}" "SKIPPED" >&2
+                skipped=$(( skipped + 1 ))
+                ;;
+            NOT_IMPLEMENTED)
+                printf "  %s○%s  %-30s %s\n" \
+                    "${DIM:-}" "${RESET:-}" "${name}" "NOT IMPLEMENTED" >&2
+                not_impl=$(( not_impl + 1 ))
+                ;;
+        esac
     done
 
     printf "\n" >&2
 
-    local total=$(( pass + fail ))
+    local total=$(( pass + fail + skipped + not_impl ))
     if [[ "${fail}" -eq 0 ]]; then
-        log::success "${pass}/${total} module(s) verified successfully." "VERIFY"
+        log::success "${pass}/${total} passed  |  ${skipped} skipped  |  ${not_impl} not implemented" "VERIFY"
     else
-        log::warn "${pass}/${total} module(s) passed — ${fail} failed." "VERIFY"
+        log::warn "${pass}/${total} passed  |  ${fail} FAILED  |  ${skipped} skipped  |  ${not_impl} not implemented" "VERIFY"
     fi
 }
 
 # @description Returns 0 if at least one module recorded a FAIL result.
-#              Useful for setting the installer's final exit code.
-# @noargs
-# @exit 0 if any failures present, 1 if all passed (or no results)
+# @exit 0 if any failures present, 1 if all passed/skipped/not-implemented
 verify::has_failures() {
     local name
     for name in "${!_VERIFY_RESULTS[@]}"; do
@@ -138,9 +154,7 @@ verify::has_failures() {
     return 1
 }
 
-# @description Clears all recorded verification results. Primarily useful for
-#              test isolation when the same shell session runs multiple suites.
-# @noargs
+# @description Clears all recorded verification results.
 # @exit 0 Always
 verify::reset() {
     _VERIFY_RESULTS=()

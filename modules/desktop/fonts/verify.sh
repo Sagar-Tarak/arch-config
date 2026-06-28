@@ -5,19 +5,29 @@ export LC_ALL=C.UTF-8
 if [[ -n "${_MODULE_FONTS_VERIFY_INCLUDED:-}" ]]; then return 0; fi
 _MODULE_FONTS_VERIFY_INCLUDED=1
 
-# @description Verifies fc-list is available and JetBrains Mono Nerd is cached.
-# @exit 0 if font tooling is available, 1 otherwise
+# @description Verifies that the Forge font packages are installed.
+#              Uses pacman -Qq (reliable) rather than parsing fc-list output
+#              (which is slow and depends on exact font family name strings).
+# @exit 0 if all font packages installed, 1 otherwise
 fonts::verify() {
-    if ! command -v fc-list &>/dev/null; then
-        log::error "Fonts: fc-list not found (fontconfig missing)" "FONTS"
-        return 1
-    fi
+    local -a _required=(
+        ttf-jetbrains-mono-nerd
+        ttf-noto-nerd
+        noto-fonts
+        noto-fonts-emoji
+        ttf-font-awesome
+    )
 
-    if fc-list 2>/dev/null | grep -qi "JetBrainsMono"; then
-        log::success "Fonts: JetBrainsMono Nerd Font detected in cache" "FONTS"
-        return 0
-    fi
+    local failed=0
+    local pkg
+    for pkg in "${_required[@]}"; do
+        if package::is_installed "${pkg}" "pacman" 2>/dev/null; then
+            log::success "Font package installed: ${pkg}" "FONTS"
+        else
+            log::error "Font package missing: ${pkg}" "FONTS"
+            failed=$(( failed + 1 ))
+        fi
+    done
 
-    log::warn "Fonts: JetBrainsMono Nerd Font not found in font cache" "FONTS"
-    return 1
+    [[ "${failed}" -eq 0 ]]
 }

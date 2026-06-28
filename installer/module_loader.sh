@@ -189,8 +189,8 @@ module::verify() {
     local leaf="${name##*/}"
     local fn="${leaf}::verify"
     if ! declare -f "${fn}" &>/dev/null; then
-        log::warn "Module '${name}' does not define ${fn} — marking unverified" "MODULE"
-        return 1
+        log::debug "Module '${name}' does not define ${fn} — NOT_IMPLEMENTED" "MODULE"
+        return 2
     fi
 
     "${fn}"
