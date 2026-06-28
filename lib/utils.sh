@@ -81,32 +81,40 @@ utils::confirm() {
     local default="${2:-N}"
     local response
 
-    # Handle non-interactive environments gracefully
-    if [[ ! -t 0 ]]; then
-        if [[ "${default}" =~ ^[Yy]$ ]]; then
-            return 0
-        else
-            return 1
-        fi
+    # Interactive terminal: prompt in a loop until a valid answer is given.
+    if [[ -t 0 ]]; then
+        while true; do
+            if [[ "${default}" =~ ^[Yy]$ ]]; then
+                read -r -p "${prompt} [Y/n]: " response
+            else
+                read -r -p "${prompt} [y/N]: " response
+            fi
+            [[ -z "${response}" ]] && response="${default}"
+            case "${response}" in
+                [Yy]* ) return 0 ;;
+                [Nn]* ) return 1 ;;
+                * ) echo "Please answer yes (y) or no (n)." ;;
+            esac
+        done
     fi
 
-    while true; do
-        if [[ "${default}" =~ ^[Yy]$ ]]; then
-            read -r -p "${prompt} [Y/n]: " response
-        else
-            read -r -p "${prompt} [y/N]: " response
-        fi
-
-        if [[ -z "${response}" ]]; then
-            response="${default}"
-        fi
-
+    # Non-interactive: attempt to read one line from stdin.
+    # Piped input (echo "yes" | confirm) satisfies the read; /dev/null gives
+    # immediate EOF and falls through to the default branch below.
+    if IFS= read -r response; then
+        [[ -z "${response}" ]] && response="${default}"
         case "${response}" in
             [Yy]* ) return 0 ;;
             [Nn]* ) return 1 ;;
-            * ) echo "Please answer yes (y) or no (n)." ;;
         esac
-    done
+    fi
+
+    # No readable input (e.g. CI with stdin closed or redirected to /dev/null).
+    if [[ "${default}" =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 # @description Removes leading and trailing whitespace from a string or standard input.
