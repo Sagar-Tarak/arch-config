@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -13,6 +13,6 @@ vscode::uninstall() {
         return 0
     fi
 
-    log::info "vscode uninstall (Phase 5+ implementation)" "VSCODE"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "VSCODE"
     return 0
 }

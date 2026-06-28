@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -13,6 +13,6 @@ hypridle::uninstall() {
         return 0
     fi
 
-    log::info "hypridle uninstall (Phase 5+ implementation)" "HYPRIDLE"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "HYPRIDLE"
     return 0
 }

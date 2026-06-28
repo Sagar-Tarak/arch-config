@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -15,6 +15,6 @@ hyprland::uninstall() {
         return 0
     fi
 
-    log::info "Hyprland uninstall (Phase 3+ implementation)" "HYPRLAND"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "HYPRLAND"
     return 0
 }

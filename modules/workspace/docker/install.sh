@@ -18,6 +18,6 @@ docker::install() {
         return 0
     fi
 
-    log::info "Docker module installation (Phase 3+ implementation)" "DOCKER"
+    log::warn "Docker module is not yet implemented — install manually: pacman -S docker docker-compose" "DOCKER"
     return 0
 }

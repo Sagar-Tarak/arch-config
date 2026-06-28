@@ -16,6 +16,6 @@ node::install() {
         return 0
     fi
 
-    log::info "Node module installation (Phase 3+ implementation)" "NODE"
+    log::warn "Node module is not yet implemented — install manually: aur::install nvm" "NODE"
     return 0
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -16,6 +16,6 @@ git::uninstall() {
         return 0
     fi
 
-    log::info "Git uninstall (Phase 3+ implementation)" "GIT"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "GIT"
     return 0
 }

@@ -99,10 +99,15 @@ service::enable() {
         return 0
     fi
 
-    local enable_cmd="${ctl} enable ${service}"
-    [[ "${now}" == "now" ]] && enable_cmd="${ctl} enable --now ${service}"
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    if [[ "${now}" == "now" ]]; then
+        _cmd+=(enable --now "${service}")
+    else
+        _cmd+=(enable "${service}")
+    fi
 
-    if eval "${enable_cmd}"; then
+    if "${_cmd[@]}"; then
         log::success "Enabled: ${service} (${scope})" "SERVICE"
         return 0
     else
@@ -141,7 +146,10 @@ service::disable() {
         return 0
     fi
 
-    if eval "${ctl} disable ${service}"; then
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    _cmd+=(disable "${service}")
+    if "${_cmd[@]}"; then
         log::success "Disabled: ${service} (${scope})" "SERVICE"
         return 0
     else
@@ -175,7 +183,10 @@ service::start() {
         return 0
     fi
 
-    if eval "${ctl} start ${service}"; then
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    _cmd+=(start "${service}")
+    if "${_cmd[@]}"; then
         log::success "Started: ${service} (${scope})" "SERVICE"
         return 0
     else
@@ -209,7 +220,10 @@ service::stop() {
         return 0
     fi
 
-    if eval "${ctl} stop ${service}"; then
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    _cmd+=(stop "${service}")
+    if "${_cmd[@]}"; then
         log::success "Stopped: ${service} (${scope})" "SERVICE"
         return 0
     else
@@ -243,7 +257,10 @@ service::restart() {
         return 0
     fi
 
-    if eval "${ctl} restart ${service}"; then
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    _cmd+=(restart "${service}")
+    if "${_cmd[@]}"; then
         log::success "Restarted: ${service} (${scope})" "SERVICE"
         return 0
     else
@@ -265,7 +282,9 @@ service::is_enabled() {
     local ctl
     ctl="$(_service::ctl "${scope}")"
 
-    eval "${ctl} is-enabled --quiet ${service}" 2>/dev/null
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    "${_cmd[@]}" is-enabled --quiet "${service}" 2>/dev/null
 }
 
 # @description Returns 0 if the service is currently running.
@@ -281,5 +300,7 @@ service::is_active() {
     local ctl
     ctl="$(_service::ctl "${scope}")"
 
-    eval "${ctl} is-active --quiet ${service}" 2>/dev/null
+    local -a _cmd
+    read -ra _cmd <<< "${ctl}"
+    "${_cmd[@]}" is-active --quiet "${service}" 2>/dev/null
 }

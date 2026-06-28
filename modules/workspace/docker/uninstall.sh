@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -15,6 +15,6 @@ docker::uninstall() {
         return 0
     fi
 
-    log::info "Docker uninstall (Phase 3+ implementation)" "DOCKER"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "DOCKER"
     return 0
 }

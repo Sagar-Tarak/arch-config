@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -15,6 +15,6 @@ nvim::uninstall() {
         return 0
     fi
 
-    log::info "Neovim uninstall (Phase 3+ implementation)" "NVIM"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "NVIM"
     return 0
 }

@@ -7,7 +7,7 @@ Installs Nerd Fonts and system fonts, then rebuilds the font cache.
 | Package | Manager | Purpose |
 |---|---|---|
 | `ttf-jetbrains-mono-nerd` | pacman | Primary coding font |
-| `ttf-fira-code` | pacman | Ligature coding font |
+| `ttf-font-awesome` | pacman | Icon font for Waybar |
 | `noto-fonts` | pacman | Unicode coverage |
 | `noto-fonts-emoji` | pacman | Emoji support |
 

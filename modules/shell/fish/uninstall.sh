@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+﻿#!/usr/bin/env bash
 set -Eeuo pipefail
 export LC_ALL=C.UTF-8
 
@@ -16,6 +16,6 @@ fish::uninstall() {
         return 0
     fi
 
-    log::info "Fish uninstall (Phase 5+ implementation)" "FISH"
+    log::info "Package removal is intentional — use pacman -Rs if needed" "FISH"
     return 0
 }
