@@ -107,6 +107,10 @@ _flow::run_full() {
     log::step "Installing Modules"
     _flow::execute_modules || true   # individual failures logged; continue to verify
 
+    # 5b. Enable system and user services
+    log::step "Enabling Services"
+    _flow::enable_services || true   # service failures are non-fatal; logged and continued
+
     # 6. Post-install verification
     log::step "Post-install Verification"
     _flow::verify
@@ -292,6 +296,38 @@ _flow::resolve_target_modules() {
             _target_array+=("${name}")
         fi
     done < <(module_loader::list)
+}
+
+# @description Enables all services declared in FORGE_SYSTEM_SERVICES and
+#              FORGE_USER_SERVICES (defined in forge/services.sh).
+#              Gracefully skips if the arrays are undefined (e.g. in tests).
+# @exit 0 Always (failures logged but not propagated)
+_flow::enable_services() {
+    local failed=0
+
+    if [[ -n "${FORGE_SYSTEM_SERVICES[*]+x}" ]]; then
+        local svc
+        for svc in "${FORGE_SYSTEM_SERVICES[@]}"; do
+            service::enable "${svc}" "system" "now" || failed=$(( failed + 1 ))
+        done
+    else
+        log::info "FORGE_SYSTEM_SERVICES not defined — skipping system services." "FLOW"
+    fi
+
+    if [[ -n "${FORGE_USER_SERVICES[*]+x}" ]]; then
+        local svc
+        for svc in "${FORGE_USER_SERVICES[@]}"; do
+            service::enable "${svc}" "user" "now" || failed=$(( failed + 1 ))
+        done
+    else
+        log::info "FORGE_USER_SERVICES not defined — skipping user services." "FLOW"
+    fi
+
+    if [[ "${failed}" -gt 0 ]]; then
+        log::warn "${failed} service(s) could not be enabled. Check logs above." "FLOW"
+    fi
+
+    return 0
 }
 
 # @description Searches all discovered modules for one whose leaf name matches.

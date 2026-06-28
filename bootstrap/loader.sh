@@ -63,6 +63,7 @@ loader::load_libs() {
         "command.sh"
         "filesystem.sh"
         "package.sh"
+        "service.sh"
         "utils.sh"
         "state.sh"
         "transaction.sh"

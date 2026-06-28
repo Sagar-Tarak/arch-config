@@ -62,7 +62,7 @@ done
 unset _component _component_path _installer_components _INSTALLER_DIR _bootstrap_entry
 
 # ------------------------------------------------------------------------------
-# Step 2b — Load Forge base system definition (defines FORGE_BASE_MODULES)
+# Step 2b — Load Forge definitions (base system modules + services)
 # ------------------------------------------------------------------------------
 _forge_base="${SCRIPT_DIR}/forge/base-system.sh"
 if [[ -f "${_forge_base}" ]]; then
@@ -70,6 +70,13 @@ if [[ -f "${_forge_base}" ]]; then
     source "${_forge_base}"
 fi
 unset _forge_base
+
+_forge_services="${SCRIPT_DIR}/forge/services.sh"
+if [[ -f "${_forge_services}" ]]; then
+    # shellcheck source=forge/services.sh
+    source "${_forge_services}"
+fi
+unset _forge_services
 
 # ------------------------------------------------------------------------------
 # Step 3 — Parse CLI arguments (populates ARCH_CFG_FLAG_* globals)
