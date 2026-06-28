@@ -78,6 +78,9 @@ flow::run() {
 #              preflight → summary → confirm → install modules → verify → report
 # @exit 0 on success, 10 on preflight failure, 1 on module failure
 _flow::run_full() {
+    local _flow_start_seconds
+    _flow_start_seconds="${SECONDS}"
+
     # 1. Pre-flight checks
     log::step "Pre-flight Checks"
     if ! checks::run_all; then
@@ -118,7 +121,7 @@ _flow::run_full() {
     # 6. Post-install verification (skipped in dry-run — nothing was installed)
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
         log::info "Verification skipped — dry-run mode: nothing was installed." "FLOW"
-        summary::print_final
+        summary::print_final "$(( SECONDS - _flow_start_seconds ))"
         return 0
     fi
 
@@ -126,7 +129,7 @@ _flow::run_full() {
     _flow::verify
 
     # 7. Final report
-    summary::print_final
+    summary::print_final "$(( SECONDS - _flow_start_seconds ))"
     verify::print_report
 
     if verify::has_failures; then

@@ -65,7 +65,7 @@ fi
 command::run() {
     log::debug "Executing command: $*" "CMD"
 
-    # Dry-run support placeholder
+    # Dry-run mode: log intent and return without executing
     if [[ "${ARCH_CFG_DRY_RUN:-}" == "true" ]]; then
         log::info "[DRY-RUN] Would run: $*" "CMD"
         return 0
@@ -82,7 +82,7 @@ command::run() {
 command::run_quiet() {
     log::debug "Executing command quiet: $*" "CMD"
 
-    # Dry-run support placeholder
+    # Dry-run mode: log intent and return without executing
     if [[ "${ARCH_CFG_DRY_RUN:-}" == "true" ]]; then
         log::info "[DRY-RUN] Would run quiet: $*" "CMD"
         return 0
@@ -111,7 +111,7 @@ command::run_quiet() {
 command::run_checked() {
     log::debug "Executing command checked: $*" "CMD"
 
-    # Dry-run support placeholder
+    # Dry-run mode: log intent and return without executing
     if [[ "${ARCH_CFG_DRY_RUN:-}" == "true" ]]; then
         log::info "[DRY-RUN] Would run checked: $*" "CMD"
         return 0

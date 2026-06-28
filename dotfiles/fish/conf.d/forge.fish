@@ -15,8 +15,7 @@ set -gx XDG_DATA_HOME   "$HOME/.local/share"
 set -gx XDG_STATE_HOME  "$HOME/.local/state"
 set -gx XDG_CACHE_HOME  "$HOME/.cache"
 
-# Wayland
-set -gx WAYLAND_DISPLAY wayland-0
+# Wayland (WAYLAND_DISPLAY is set automatically by Hyprland — do not hardcode it)
 set -gx QT_QPA_PLATFORM wayland
 set -gx GDK_BACKEND     wayland
 

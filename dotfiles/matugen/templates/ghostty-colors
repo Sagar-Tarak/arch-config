@@ -6,21 +6,21 @@ foreground = {{colors.on_background.default.hex | replace(from="#", to="")}}
 background = {{colors.background.default.hex | replace(from="#", to="")}}
 
 # Normal colors (0-7)
-palette = 0={{colors.surface_container_lowest.default.hex}}
-palette = 1={{colors.error.default.hex}}
-palette = 2={{colors.secondary.default.hex}}
-palette = 3={{colors.tertiary.default.hex}}
-palette = 4={{colors.primary.default.hex}}
-palette = 5={{colors.primary_container.default.hex}}
-palette = 6={{colors.secondary_container.default.hex}}
-palette = 7={{colors.on_surface.default.hex}}
+palette = 0={{colors.surface_container_lowest.default.hex | replace(from="#", to="")}}
+palette = 1={{colors.error.default.hex | replace(from="#", to="")}}
+palette = 2={{colors.secondary.default.hex | replace(from="#", to="")}}
+palette = 3={{colors.tertiary.default.hex | replace(from="#", to="")}}
+palette = 4={{colors.primary.default.hex | replace(from="#", to="")}}
+palette = 5={{colors.primary_container.default.hex | replace(from="#", to="")}}
+palette = 6={{colors.secondary_container.default.hex | replace(from="#", to="")}}
+palette = 7={{colors.on_surface.default.hex | replace(from="#", to="")}}
 
 # Bright colors (8-15)
-palette = 8={{colors.surface_container.default.hex}}
-palette = 9={{colors.error_container.default.hex}}
-palette = 10={{colors.on_secondary_container.default.hex}}
-palette = 11={{colors.on_tertiary_container.default.hex}}
-palette = 12={{colors.on_primary_container.default.hex}}
-palette = 13={{colors.inverse_primary.default.hex}}
-palette = 14={{colors.on_secondary.default.hex}}
-palette = 15={{colors.on_background.default.hex}}
+palette = 8={{colors.surface_container.default.hex | replace(from="#", to="")}}
+palette = 9={{colors.error_container.default.hex | replace(from="#", to="")}}
+palette = 10={{colors.on_secondary_container.default.hex | replace(from="#", to="")}}
+palette = 11={{colors.on_tertiary_container.default.hex | replace(from="#", to="")}}
+palette = 12={{colors.on_primary_container.default.hex | replace(from="#", to="")}}
+palette = 13={{colors.inverse_primary.default.hex | replace(from="#", to="")}}
+palette = 14={{colors.on_secondary.default.hex | replace(from="#", to="")}}
+palette = 15={{colors.on_background.default.hex | replace(from="#", to="")}}

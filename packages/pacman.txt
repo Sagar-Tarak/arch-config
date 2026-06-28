@@ -60,6 +60,10 @@ grim
 slurp
 wl-clipboard
 rofi-wayland
+polkit-gnome
+brightnessctl
+playerctl
+pavucontrol
 thunar
 thunar-volman
 tumbler

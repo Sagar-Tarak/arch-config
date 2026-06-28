@@ -112,18 +112,40 @@ summary::print_packages() {
 
 # @description Prints the post-installation completion banner to stderr.
 #              In dry-run mode, emphasises that no changes were made.
-# @noargs
+# @arg1 integer elapsed_seconds  Optional: seconds elapsed during install
 # @exit 0 Always
 summary::print_final() {
+    local elapsed="${1:-}"
     log::step "Installation Summary"
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
         log::info "Dry-run complete — no changes were made to the system." "SUMMARY"
         log::info "Remove --dry-run and re-run to apply the installation." "SUMMARY"
+        printf "\n" >&2
+        return 0
+    fi
+
+    # Elapsed time
+    if [[ -n "${elapsed}" && "${elapsed}" =~ ^[0-9]+$ ]]; then
+        local mins=$(( elapsed / 60 ))
+        local secs=$(( elapsed % 60 ))
+        log::success "Installation complete in ${mins}m ${secs}s." "SUMMARY"
     else
         log::success "Installation complete." "SUMMARY"
     fi
 
+    printf "\n" >&2
+
+    # Next steps
+    log::step "Next Steps"
+    printf "  1. Log out and select Hyprland from your display manager, or run:\n" >&2
+    printf "        Hyprland\n\n" >&2
+    printf "  2. Change your wallpaper (this also regenerates your color scheme):\n" >&2
+    printf "        bash %s/scripts/set-wallpaper.sh /path/to/image\n\n" "${PROJECT_ROOT:-~/.config/forge}" >&2
+    printf "  3. Set fish as your default shell:\n" >&2
+    printf "        chsh -s \$(which fish)\n\n" >&2
+    printf "  4. Launch Neovim once to finish plugin installation:\n" >&2
+    printf "        nvim\n\n" >&2
     printf "\n" >&2
 }
 
