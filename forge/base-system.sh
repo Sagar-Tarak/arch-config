@@ -8,13 +8,21 @@ _FORGE_BASE_SYSTEM_INCLUDED=1
 # ==============================================================================
 # Forge — Base System Definition
 # File: forge/base-system.sh
-# Purpose: Single source of truth for the Forge base system.
 #
-#          Forge installs exactly one desktop environment (Hyprland) and one
-#          base development environment. There is no installation wizard, no
-#          profile selection, and no desktop choice.
+# Philosophy (v2):
+#   Forge is a POST-INSTALL workstation bootstrapper.
+#   It assumes the user already has Arch Linux + Hyprland installed via archinstall.
+#   Forge adds the personal workstation layer on top of that clean base:
+#   applications, dotfiles, CLI tools, and theming.
 #
-#          Every key in this file answers: "what does Forge always install?"
+#   Forge does NOT install:
+#     - The operating system
+#     - Graphics drivers
+#     - The Hyprland compositor itself
+#     - NetworkManager, PipeWire, or the audio stack
+#     - The base system (base-devel, git, curl)
+#
+#   Those belong to archinstall.
 #
 # Usage:
 #   source forge/base-system.sh
@@ -24,19 +32,27 @@ _FORGE_BASE_SYSTEM_INCLUDED=1
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# Ordered module list — the Forge base system.
+# Ordered module list — the Forge workstation layer.
+#
+# Prerequisites (managed by archinstall, NOT Forge):
+#   - Arch Linux
+#   - Hyprland + xdg-desktop-portal-hyprland
+#   - NetworkManager (enabled)
+#   - PipeWire + WirePlumber (enabled)
+#   - base-devel (for AUR helper)
+#   - git
 #
 # Modules are installed in array order. A module must appear after all modules
-# it depends on. The module loader enforces declared dependencies but ordering
-# here also serves as documentation of the install sequence.
+# it depends on.
 # ------------------------------------------------------------------------------
 readonly -a FORGE_BASE_MODULES=(
-    # 1. Core: initialize the runtime directory structure
+    # 1. Core: initialize the framework runtime directory structure
     "core"
 
-    # 2. Desktop environment: Hyprland + full compositor stack
-    "desktop/fonts"        # fonts first — hyprland depends on them
-    "desktop/hyprland"     # Wayland compositor
+    # 2. Fonts: must come first — all other desktop apps depend on them
+    "desktop/fonts"
+
+    # 3. Hyprland extras: tools that archinstall does not install by default
     "desktop/waybar"       # status bar
     "desktop/hyprlock"     # screen locker
     "desktop/hypridle"     # idle management
@@ -45,35 +61,33 @@ readonly -a FORGE_BASE_MODULES=(
     "desktop/swaync"       # notification center
     "desktop/thunar"       # graphical file manager
 
-    # 3. Terminal
-    "terminal/ghostty"     # Ghostty terminal emulator
+    # 4. Terminal
+    "terminal/ghostty"     # Ghostty terminal emulator (AUR)
 
-    # 4. Shell
-    "shell/fish"           # Fish shell + Starship prompt
+    # 5. Shell
+    "shell/fish"           # Fish shell + Starship prompt + Atuin history
 
-    # 5. Editors
-    "editor/nvim"          # Neovim with Lazy.nvim
+    # 6. Editors
+    "editor/nvim"          # Neovim (LazyVim bootstrap on first launch)
 
-    # 6. Browser
+    # 7. Browser
     "browser/firefox"      # Firefox
 
-    # 7. Development baseline
-    "workspace/git"        # Git + GitHub CLI
+    # 8. Development tools
+    "workspace/git"        # GitHub CLI + Lazygit (git itself is from archinstall)
 
-    # 8. Theming: wallpaper-driven color generation
+    # 9. Theming: wallpaper-driven color generation
     "desktop/matugen"      # matugen — generates colors from wallpaper
 
-    # 9. Dotfiles: always last — links configs after tools are installed
+    # 10. Dotfiles: always last — links configs after all tools are installed
     "dotfiles"
 )
 
 # ------------------------------------------------------------------------------
-# Workspace extensions — NOT part of the base system.
-# Installed on demand via: forge install <name>  (future CLI)
+# Workspace extensions — NOT part of the base workstation.
+# Installed on demand: forge install <name>  (future CLI)
 # Defined here for documentation purposes only.
 # ------------------------------------------------------------------------------
 #
-# forge install node     → workspace/node
 # forge install docker   → workspace/docker
-# forge install rust     → (future workspace/rust)
-# forge install go       → (future workspace/go)
+# forge install node     → workspace/node

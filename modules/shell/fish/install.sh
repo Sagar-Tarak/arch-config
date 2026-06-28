@@ -5,26 +5,25 @@ export LC_ALL=C.UTF-8
 if [[ -n "${_MODULE_FISH_INSTALL_INCLUDED:-}" ]]; then return 0; fi
 _MODULE_FISH_INSTALL_INCLUDED=1
 
-# @description Installs Fish shell and Starship prompt.
-#              Does NOT change the default shell automatically — that would
-#              require an interactive prompt (chsh). Instead, a recommendation
-#              is logged. A future `forge shell set fish` command will handle this.
+# @description Installs Fish shell, Starship prompt, and Atuin shell history.
+#              Does NOT change the default shell automatically — chsh requires
+#              interactive confirmation and breaks unattended installation.
 # @exit 0 on success
 fish::install() {
     log::step "Fish Shell" "FISH"
 
-    local -a _pkgs=( fish starship )
+    local -a _pacman_pkgs=( fish starship )
+    local -a _aur_pkgs=( atuin )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
-        log::info "[DRY-RUN] Would install (pacman): ${_pkgs[*]}" "FISH"
+        log::info "[DRY-RUN] Would install (pacman): ${_pacman_pkgs[*]}" "FISH"
+        log::info "[DRY-RUN] Would install (AUR): ${_aur_pkgs[*]}" "FISH"
         return 0
     fi
 
-    package::install_list "pacman" "${_pkgs[@]}" || return 1
+    package::install_list "pacman" "${_pacman_pkgs[@]}" || return 1
+    aur::install "${_aur_pkgs[@]}" || log::warn "atuin (AUR) install failed — shell history sync unavailable" "FISH"
 
-    # Report current shell and recommend Fish if it is not already the default.
-    # We never call chsh automatically — it would require interactive confirmation
-    # and may prompt for a password, breaking unattended installation.
     local _fish_path
     _fish_path="$(command -v fish 2>/dev/null || true)"
 
@@ -33,13 +32,12 @@ fish::install() {
         _current_shell="$(getent passwd "${USER:-root}" 2>/dev/null | cut -d: -f7 || echo "${SHELL:-unknown}")"
 
         if [[ "${_current_shell}" == "${_fish_path}" ]]; then
-            log::info "Fish is already the default shell for ${USER:-root}" "FISH"
+            log::info "Fish is already the default shell." "FISH"
         else
-            log::info "Current shell: ${_current_shell}" "FISH"
-            log::info "To set Fish as default: chsh -s ${_fish_path}" "FISH"
+            log::info "To set Fish as default shell: chsh -s ${_fish_path}" "FISH"
         fi
     fi
 
-    log::success "Fish shell installed" "FISH"
+    log::success "Fish + Starship + Atuin installed" "FISH"
     return 0
 }

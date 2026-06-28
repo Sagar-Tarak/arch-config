@@ -32,6 +32,12 @@ fish::verify() {
         failed=$(( failed + 1 ))
     fi
 
+    if command -v atuin &>/dev/null; then
+        log::success "atuin: found in PATH" "FISH"
+    else
+        log::warn "atuin: not found (shell history sync unavailable)" "FISH"
+    fi
+
     # Warn (not fail) if fish is not the login shell
     local fish_path
     fish_path="$(command -v fish 2>/dev/null || true)"

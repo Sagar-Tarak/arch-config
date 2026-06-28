@@ -244,22 +244,85 @@ checks::check_project_structure() {
     return 0
 }
 
+# @description Verifies Hyprland is installed. Forge is a post-install
+#              bootstrapper — it requires an existing Hyprland installation.
+#              If Hyprland is missing, the installer should not proceed.
+# @noargs
+# @exit 0 if hyprctl is in PATH, 1 otherwise
+checks::check_hyprland() {
+    if command -v hyprctl &>/dev/null; then
+        log::debug "Hyprland check passed: hyprctl found in PATH." "CHECKS"
+        return 0
+    fi
+    log::error "Hyprland is not installed." "CHECKS"
+    log::error "Forge requires an existing Arch Linux installation with Hyprland." "CHECKS"
+    log::error "Install Arch with archinstall, select the Hyprland desktop profile," "CHECKS"
+    log::error "reboot into Hyprland, then run Forge." "CHECKS"
+    return 1
+}
+
+# @description Verifies makepkg is available. Required to build AUR packages.
+#              makepkg is part of base-devel, which archinstall provides.
+# @noargs
+# @exit 0 if makepkg is in PATH, 1 otherwise
+checks::check_build_tools() {
+    if command -v makepkg &>/dev/null; then
+        log::debug "Build tools check passed: makepkg found." "CHECKS"
+        return 0
+    fi
+    log::error "makepkg not found — base-devel is missing." "CHECKS"
+    log::error "Install base-devel: sudo pacman -S base-devel" "CHECKS"
+    return 1
+}
+
+# @description Verifies NetworkManager is available. Informational only —
+#              archinstall is expected to have already enabled it.
+# @noargs
+# @exit 0 Always (failure is a warning, not a blocker)
+checks::check_networkmanager() {
+    if command -v nmcli &>/dev/null; then
+        log::debug "NetworkManager check passed." "CHECKS"
+        return 0
+    fi
+    log::warn "nmcli not found — NetworkManager may not be running." "CHECKS"
+    log::warn "Enable it: sudo systemctl enable --now NetworkManager" "CHECKS"
+    return 0
+}
+
+# @description Verifies PipeWire is available. Informational only —
+#              archinstall Hyprland profile is expected to have enabled it.
+# @noargs
+# @exit 0 Always (failure is a warning, not a blocker)
+checks::check_pipewire() {
+    if command -v wpctl &>/dev/null; then
+        log::debug "PipeWire check passed: wpctl found." "CHECKS"
+        return 0
+    fi
+    log::warn "wpctl not found — PipeWire may not be running." "CHECKS"
+    log::warn "Enable it: systemctl --user enable --now pipewire pipewire-pulse wireplumber" "CHECKS"
+    return 0
+}
+
 # @description Runs all pre-flight checks in sequence. Logs a PASS/FAIL summary
 #              for each check. Does NOT abort on failure — returns 1 if any
 #              check fails so the caller can decide the response.
 # @noargs
-# @exit 0 if all checks pass, 1 if any check fails.
+# @exit 0 if all blocking checks pass, 1 if any blocking check fails.
 checks::run_all() {
     local overall=0
 
-    _checks::run_one "OS is Arch Linux"       checks::check_arch            || overall=1
-    _checks::run_one "Internet connectivity"  checks::check_internet         || overall=1
-    _checks::run_one "Disk space (>= 10 GiB)" checks::check_disk_space       || overall=1
-    _checks::run_one "RAM (>= 512 MiB)"       checks::check_ram              || overall=1
-    _checks::run_one "Not running as root"    checks::check_root             || overall=1
-    _checks::run_one "Supported shell"        checks::check_supported_shell  || overall=1
-    _checks::run_one "Project structure"      checks::check_project_structure || overall=1
-    # VM detection is informational — always passes, prints guidance if in a VM
+    # --- Blocking checks: installer should not proceed if these fail ---
+    _checks::run_one "OS is Arch Linux"        checks::check_arch             || overall=1
+    _checks::run_one "Hyprland is installed"   checks::check_hyprland         || overall=1
+    _checks::run_one "Build tools (base-devel)" checks::check_build_tools      || overall=1
+    _checks::run_one "Internet connectivity"   checks::check_internet          || overall=1
+    _checks::run_one "Disk space (>= 10 GiB)"  checks::check_disk_space        || overall=1
+    _checks::run_one "Not running as root"     checks::check_root              || overall=1
+    _checks::run_one "Project structure"       checks::check_project_structure || overall=1
+
+    # --- Informational checks: warn but do not block ---
+    checks::check_networkmanager
+    checks::check_pipewire
     checks::check_vm_environment
 
     return "${overall}"

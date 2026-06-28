@@ -64,12 +64,13 @@ test_base_system_has_dotfiles_last() {
     [[ "${last}" == "dotfiles" ]]
 }
 
-test_base_system_includes_desktop_hyprland() {
+test_base_system_excludes_desktop_hyprland() {
+    # Hyprland is installed by archinstall — not Forge's responsibility (v2)
     local m
     for m in "${FORGE_BASE_MODULES[@]}"; do
-        [[ "${m}" == "desktop/hyprland" ]] && return 0
+        [[ "${m}" == "desktop/hyprland" ]] && return 1
     done
-    return 1
+    return 0
 }
 
 test_base_system_includes_terminal_ghostty() {
@@ -172,7 +173,7 @@ echo " Base system definition:"
 _run_test test_base_system_loads
 _run_test test_base_system_has_core_first
 _run_test test_base_system_has_dotfiles_last
-_run_test test_base_system_includes_desktop_hyprland
+_run_test test_base_system_excludes_desktop_hyprland
 _run_test test_base_system_includes_terminal_ghostty
 _run_test test_base_system_includes_shell_fish
 _run_test test_base_system_does_not_include_workspace_docker

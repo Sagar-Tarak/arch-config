@@ -2,87 +2,74 @@
 # Forge — pacman package list
 # Format: one package per line; lines starting with # are comments.
 # Consumed by packages::parse_file during installation.
+#
+# Philosophy (v2):
+#   These are WORKSTATION packages only.
+#   Forge assumes the following are already installed by archinstall:
+#     base-devel, git, curl, wget, networkmanager, pipewire, wireplumber,
+#     hyprland, xdg-desktop-portal-hyprland, xdg-utils, xdg-user-dirs,
+#     mesa, polkit
+#   Do not add OS-level packages here.
 # ==============================================================================
 
-# --- Build tools (required first — needed to bootstrap AUR helper) ---
-base-devel
-make
-cmake
-gcc
-clang
+# --- Hyprland extras (not included in archinstall Hyprland profile) ----------
+waybar              # status bar
+hyprpaper           # wallpaper daemon
+hyprlock            # screen locker
+hypridle            # idle management
+grim                # screenshot tool
+slurp               # screen area selection
+wl-clipboard        # Wayland clipboard utilities
+rofi-wayland        # application launcher (Wayland fork)
+polkit-gnome        # polkit authentication agent for GNOME apps
+brightnessctl       # screen brightness control
+playerctl           # media player control (media keys)
+pavucontrol         # PulseAudio/PipeWire volume GUI
 
-# --- Core services ---
-networkmanager
-bluez
-bluez-utils
-avahi
-pipewire
-pipewire-pulse
-wireplumber
-polkit
-gvfs
+# --- Desktop utilities -------------------------------------------------------
+thunar              # graphical file manager
+thunar-volman       # removable media management for Thunar
+tumbler             # thumbnail service for Thunar
+gvfs                # virtual filesystem support (USB, MTP, network shares)
 
-# --- Core system utilities ---
-curl
-wget
-git
-github-cli
-openssh
-rsync
-zip
-unzip
-p7zip
-jq
-yq
-tree
-fastfetch
-btop
+# --- Terminal -----------------------------------------------------------------
+fish                # Fish shell
+starship            # cross-shell prompt
 
-# --- CLI productivity ---
-ripgrep
-fd
-fzf
-bat
-eza
-zoxide
+# --- Editors -----------------------------------------------------------------
+neovim              # terminal editor (LazyVim bootstraps on first launch)
 
-# --- Hyprland desktop stack ---
-mesa
-libva-mesa-driver
-hyprland
-hyprutils
-xdg-desktop-portal-hyprland
-xdg-utils
-xdg-user-dirs
-waybar
-hyprpaper
-hyprlock
-hypridle
-grim
-slurp
-wl-clipboard
-rofi-wayland
-polkit-gnome
-brightnessctl
-playerctl
-pavucontrol
-thunar
-thunar-volman
-tumbler
+# --- Browser -----------------------------------------------------------------
+firefox             # web browser
 
-# --- Shell ---
-fish
-starship
+# --- Fonts -------------------------------------------------------------------
+ttf-jetbrains-mono-nerd   # primary monospace font (terminal, editor)
+ttf-noto-nerd             # Noto with Nerd Font icons
+noto-fonts                # broad Unicode coverage
+noto-fonts-emoji          # emoji support
+ttf-font-awesome          # icon font (Waybar)
 
-# --- Editors ---
-neovim
+# --- CLI productivity --------------------------------------------------------
+ripgrep             # fast recursive search (rg)
+fd                  # modern find replacement
+fzf                 # fuzzy finder
+bat                 # syntax-highlighted cat
+eza                 # modern ls with icons
+zoxide              # smart cd with frecency
+yazi                # terminal file manager
+lazygit             # terminal Git UI
+jq                  # JSON processor
+yq                  # YAML/JSON/TOML processor
+tree                # directory tree display
 
-# --- Browser ---
-firefox
+# --- System info + monitoring ------------------------------------------------
+fastfetch           # system info display
+btop                # resource monitor
 
-# --- Fonts ---
-ttf-jetbrains-mono-nerd
-ttf-noto-nerd
-noto-fonts
-noto-fonts-emoji
-ttf-font-awesome
+# --- Developer utilities -----------------------------------------------------
+github-cli          # GitHub CLI (gh)
+openssh             # SSH client and server
+rsync               # file synchronisation
+zip                 # ZIP archive creation
+unzip               # ZIP archive extraction
+p7zip               # 7-Zip archive support

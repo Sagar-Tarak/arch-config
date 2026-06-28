@@ -7,15 +7,17 @@
 # Run `pacman -Ss <name>` to check before adding anything here.
 # ==============================================================================
 
-# --- Terminal ---
-ghostty               # not in official repos
+# --- Terminal -----------------------------------------------------------------
+ghostty             # GPU-accelerated terminal emulator
 
-# --- Hyprland extras ---
-hyprpicker            # not in official repos
+# --- Hyprland extras ----------------------------------------------------------
+hyprpicker          # color picker for Hyprland
 
-# --- Notification daemon ---
-swaync                # not in official repos
+# --- Notification daemon ------------------------------------------------------
+swaync              # SwayNC notification center
 
-# --- Theming ---
-matugen-bin           # wallpaper-driven Material You color generation
+# --- Theming ------------------------------------------------------------------
+matugen-bin         # wallpaper-driven Material You color generation
 
+# --- Shell history ------------------------------------------------------------
+atuin               # encrypted shell history with sync

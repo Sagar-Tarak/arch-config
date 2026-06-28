@@ -8,49 +8,33 @@ _FORGE_SERVICES_INCLUDED=1
 # ==============================================================================
 # Forge — Base System Service Definitions
 # File: forge/services.sh
-# Purpose: Single source of truth for which systemd services the Forge base
-#          system enables. Service names are systemd unit names (without .service
-#          suffix where systemctl accepts them either way).
 #
-#          System services require elevated privileges.
-#          User services run under the installing user's systemd instance.
+# Philosophy (v2):
+#   Forge assumes an archinstall Hyprland installation, which already enables:
+#     - NetworkManager (system service)
+#     - bluetooth (system service)
+#     - pipewire, pipewire-pulse, wireplumber (user services)
 #
-# Usage:
-#   source forge/services.sh
-#   for entry in "${FORGE_SYSTEM_SERVICES[@]}"; do
-#       service::enable "${entry}" "system" "now"
-#   done
+#   Forge does NOT re-enable those services. They are assumed to be running
+#   before Forge is executed.
+#
+#   This file is intentionally empty. If a future Forge module introduces a
+#   service that archinstall does not handle (e.g. docker, syncthing), add it
+#   here with the backing package documented below.
 # ==============================================================================
 
-# ------------------------------------------------------------------------------
-# System services — enabled for all users, require sudo
-# ------------------------------------------------------------------------------
-readonly -a FORGE_SYSTEM_SERVICES=(
-    "NetworkManager"   # network connectivity
-    "bluetooth"        # Bluetooth (bluez)
-    "avahi-daemon"     # local network discovery (optional but common)
-)
+# System services managed by Forge (currently none — archinstall handles them)
+readonly -a FORGE_SYSTEM_SERVICES=()
+
+# User services managed by Forge (currently none — archinstall handles them)
+readonly -a FORGE_USER_SERVICES=()
 
 # ------------------------------------------------------------------------------
-# User services — enabled per-user via systemctl --user
-# PipeWire, WirePlumber, and xdg-desktop-portal run as user services on Arch.
-# ------------------------------------------------------------------------------
-readonly -a FORGE_USER_SERVICES=(
-    "pipewire"         # audio/video routing
-    "pipewire-pulse"   # PulseAudio compatibility layer
-    "wireplumber"      # PipeWire session manager
-)
-
-# ------------------------------------------------------------------------------
-# Packages that back these services (installed via the packages/ manifests
-# but documented here so the relationship is explicit)
-# ------------------------------------------------------------------------------
+# Services assumed present from archinstall Hyprland profile:
 #
-# NetworkManager → networkmanager   (pacman)
-# bluetooth      → bluez bluez-utils (pacman)
-# avahi-daemon   → avahi            (pacman)
-# pipewire       → pipewire         (pacman)
-# pipewire-pulse → pipewire-pulse   (pacman)
-# wireplumber    → wireplumber      (pacman)
-# polkit         → polkit           (pacman) — no service entry, auto-started by dbus
-# gvfs           → gvfs             (pacman) — auto-started per session
+#   NetworkManager     ← networkmanager  (pacman, system)
+#   bluetooth          ← bluez           (pacman, system)
+#   pipewire           ← pipewire        (pacman, user)
+#   pipewire-pulse     ← pipewire-pulse  (pacman, user)
+#   wireplumber        ← wireplumber     (pacman, user)
+# ------------------------------------------------------------------------------
