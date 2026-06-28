@@ -10,6 +10,11 @@ _MODULE_ZEN_INSTALL_INCLUDED=1
 zen::install() {
     log::step "Zen Browser" "ZEN"
 
+    if [[ "${FORGE_AUR_AVAILABLE:-true}" == "false" ]]; then
+        log::warn "Skipped: AUR unavailable (paru/yay could not be bootstrapped)." "ZEN"
+        return 3
+    fi
+
     local -a _pkgs=( zen-browser )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then

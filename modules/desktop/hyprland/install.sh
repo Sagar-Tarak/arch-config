@@ -29,7 +29,12 @@ hyprland::install() {
     fi
 
     package::install_list "pacman" "${_pacman_pkgs[@]}" || return 1
-    aur::install "${_aur_pkgs[@]}" || return 1
+
+    if [[ "${FORGE_AUR_AVAILABLE:-true}" == "false" ]]; then
+        log::warn "Skipping AUR packages (hyprpicker): AUR unavailable." "HYPRLAND"
+    else
+        aur::install "${_aur_pkgs[@]}" || log::warn "hyprpicker (AUR) install failed — color picker unavailable." "HYPRLAND"
+    fi
 
     # Initialize XDG user directories on first install
     if command -v xdg-user-dirs-update &>/dev/null; then

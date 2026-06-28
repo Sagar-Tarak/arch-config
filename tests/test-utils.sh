@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - utils.sh Unit Test Suite
+# Forge - utils.sh Unit Test Suite
 # File: tests/test-utils.sh
 # Purpose: Verifies utility functions (trim, join_by, is_root, current_user,
 #          timestamp, and confirm) using pure-Bash and simulated environments.

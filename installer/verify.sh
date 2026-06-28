@@ -136,11 +136,16 @@ verify::print_report() {
 
     printf "\n" >&2
 
-    local total=$(( pass + fail + skipped + not_impl ))
-    if [[ "${fail}" -eq 0 ]]; then
-        log::success "${pass}/${total} passed  |  ${skipped} skipped  |  ${not_impl} not implemented" "VERIFY"
-    else
-        log::warn "${pass}/${total} passed  |  ${fail} FAILED  |  ${skipped} skipped  |  ${not_impl} not implemented" "VERIFY"
+    printf "\n" >&2
+    printf "  %-14s %s\n" "Installed:"   "${BOLD_GREEN:-}✔ ${pass}${RESET:-}"    >&2
+    printf "  %-14s %s\n" "Skipped:"     "${BOLD_YELLOW:-}• ${skipped}${RESET:-}" >&2
+    printf "  %-14s %s\n" "Failed:"      "${BOLD_RED:-}✖ ${fail}${RESET:-}"       >&2
+    [[ "${not_impl}" -gt 0 ]] && \
+        printf "  %-14s %s\n" "Not impl.:"  "${DIM:-}○ ${not_impl}${RESET:-}"     >&2
+    printf "\n" >&2
+
+    if [[ "${fail}" -gt 0 ]]; then
+        log::error "${fail} module(s) failed verification. See details above." "VERIFY"
     fi
 }
 

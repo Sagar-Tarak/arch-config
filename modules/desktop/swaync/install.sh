@@ -10,6 +10,11 @@ _MODULE_SWAYNC_INSTALL_INCLUDED=1
 swaync::install() {
     log::step "SwayNC" "SWAYNC"
 
+    if [[ "${FORGE_AUR_AVAILABLE:-true}" == "false" ]]; then
+        log::warn "Skipped: AUR unavailable (paru/yay could not be bootstrapped)." "SWAYNC"
+        return 3
+    fi
+
     local -a _pkgs=( swaync )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then

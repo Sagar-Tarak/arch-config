@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - logger.sh Unit Test Suite
+# Forge - logger.sh Unit Test Suite
 # File: tests/test-logger.sh
 # Purpose: Verifies structured log formats, multiline log expansion, and level toggles.
 # Dependencies: lib/logger.sh

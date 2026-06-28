@@ -13,7 +13,7 @@ fi
 _DOTFILES_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Dotfile Deployment Interface
+# Forge - Dotfile Deployment Interface
 # File: installer/dotfiles.sh
 # Purpose: Provides the public API for deploying, backing up, restoring, and
 #          verifying dotfile symlinks. All destructive operations are guarded

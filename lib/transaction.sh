@@ -6,7 +6,7 @@ if [[ -n "${_TRANSACTION_SH_INCLUDED:-}" ]]; then return 0; fi
 _TRANSACTION_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Transaction Library
+# Forge - Transaction Library
 # File: lib/transaction.sh
 # Purpose: Provides lightweight operation recording for installer runs.
 #          Each transaction is a directory under RUNTIME_TRANSACTIONS_DIR

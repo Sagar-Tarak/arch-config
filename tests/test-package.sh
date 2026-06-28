@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - package.sh Unit Test Suite
+# Forge - package.sh Unit Test Suite
 # File: tests/test-package.sh
 # Purpose: Verifies package manager abstraction layer (has_manager, detect_aur_helper,
 #          is_installed, and install interface) by mocking package command line utilities.

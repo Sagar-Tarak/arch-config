@@ -13,7 +13,7 @@ fi
 _LOADER_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Library Loader
+# Forge - Library Loader
 # File: bootstrap/loader.sh
 # Purpose: Safely sources all core lib/ libraries in dependency order with
 #          duplicate-load protection. All other bootstrap components depend on

@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - checks.sh Unit Test Suite
+# Forge - checks.sh Unit Test Suite
 # File: tests/test-checks.sh
 # Purpose: Verifies that each pre-flight check function returns the correct
 #          exit code for both passing and failing conditions. Tests use
@@ -232,6 +232,64 @@ test_checks_check_project_structure_fails_when_root_unset() {
     return "${result}"
 }
 
+# --- checks::check_git ---
+
+# Verifies check_git passes when git is on PATH.
+test_checks_check_git_passes_when_git_present() {
+    checks::check_git
+}
+
+# Verifies check_git fails when git is absent (PATH manipulation).
+test_checks_check_git_fails_when_git_absent() {
+    local saved_path="${PATH}"
+    PATH=""
+    local result=0
+    if checks::check_git; then
+        echo "Error: check_git should have failed with empty PATH" >&2
+        result=1
+    fi
+    export PATH="${saved_path}"
+    return "${result}"
+}
+
+# --- checks::check_wayland ---
+
+# Verifies check_wayland passes when WAYLAND_DISPLAY is set.
+test_checks_check_wayland_passes_when_display_set() {
+    local saved="${WAYLAND_DISPLAY:-}"
+    export WAYLAND_DISPLAY="wayland-1"
+    checks::check_wayland
+    local rc=$?
+    if [[ -n "${saved}" ]]; then export WAYLAND_DISPLAY="${saved}"; else unset WAYLAND_DISPLAY; fi
+    return "${rc}"
+}
+
+# Verifies check_wayland passes when XDG_SESSION_TYPE=wayland.
+test_checks_check_wayland_passes_via_session_type() {
+    local saved_d="${WAYLAND_DISPLAY:-}" saved_t="${XDG_SESSION_TYPE:-}"
+    unset WAYLAND_DISPLAY
+    export XDG_SESSION_TYPE="wayland"
+    checks::check_wayland
+    local rc=$?
+    if [[ -n "${saved_d}" ]]; then export WAYLAND_DISPLAY="${saved_d}"; else unset WAYLAND_DISPLAY; fi
+    if [[ -n "${saved_t}" ]]; then export XDG_SESSION_TYPE="${saved_t}"; else unset XDG_SESSION_TYPE; fi
+    return "${rc}"
+}
+
+# Verifies check_wayland fails when neither env var is set.
+test_checks_check_wayland_fails_when_no_session() {
+    local saved_d="${WAYLAND_DISPLAY:-}" saved_t="${XDG_SESSION_TYPE:-}"
+    unset WAYLAND_DISPLAY XDG_SESSION_TYPE
+    local result=0
+    if checks::check_wayland; then
+        echo "Error: check_wayland should have failed with no Wayland env vars" >&2
+        result=1
+    fi
+    if [[ -n "${saved_d}" ]]; then export WAYLAND_DISPLAY="${saved_d}"; fi
+    if [[ -n "${saved_t}" ]]; then export XDG_SESSION_TYPE="${saved_t}"; fi
+    return "${result}"
+}
+
 # ==============================================================================
 # Execution Entrypoint
 # ==============================================================================
@@ -261,6 +319,11 @@ run_test test_checks_check_required_commands_fails_on_partial_missing
 run_test test_checks_check_project_structure_passes_on_valid_root
 run_test test_checks_check_project_structure_fails_on_invalid_root
 run_test test_checks_check_project_structure_fails_when_root_unset
+run_test test_checks_check_git_passes_when_git_present
+run_test test_checks_check_git_fails_when_git_absent
+run_test test_checks_check_wayland_passes_when_display_set
+run_test test_checks_check_wayland_passes_via_session_type
+run_test test_checks_check_wayland_fails_when_no_session
 
 echo "All test-checks.sh tests passed!"
 echo "============================================================"

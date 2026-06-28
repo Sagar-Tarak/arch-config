@@ -18,7 +18,7 @@ fi
 _UTILS_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - General Utilities Library
+# Forge - General Utilities Library
 # File: lib/utils.sh
 # Purpose: Core helper utilities (root check, user query, timestamps, formatting)
 #          without external dependencies or project-specific logic.

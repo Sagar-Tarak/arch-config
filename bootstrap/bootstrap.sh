@@ -16,7 +16,7 @@ fi
 _BOOTSTRAP_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Bootstrap Entry Point
+# Forge - Bootstrap Entry Point
 # File: bootstrap/bootstrap.sh
 # Purpose: Orchestrates the full bootstrap sequence. Sources the library loader,
 #          loads all core libraries, initialises global variables, detects the
@@ -115,7 +115,7 @@ bootstrap::_print_banner() {
     local divider="════════════════════════════════════════════════════════════"
     if declare -f colors::supports_color &>/dev/null && colors::supports_color; then
         echo "${BOLD_CYAN}${divider}${RESET}" >&2
-        echo "${BOLD_WHITE}  Arch Linux Configuration Framework  v${VERSION}${RESET}" >&2
+        echo "${BOLD_WHITE}  Forge  v${VERSION}${RESET}" >&2
         echo "${CYAN}  Project Root : ${PROJECT_ROOT}${RESET}" >&2
         echo "${CYAN}  CPU Arch     : ${ENV_CPU_ARCH}${RESET}" >&2
         echo "${CYAN}  Shell        : ${ENV_SHELL}${RESET}" >&2
@@ -124,7 +124,7 @@ bootstrap::_print_banner() {
         echo "${BOLD_CYAN}${divider}${RESET}" >&2
     else
         echo "${divider}" >&2
-        echo "  Arch Linux Configuration Framework  v${VERSION}" >&2
+        echo "  Forge  v${VERSION}" >&2
         echo "  Project Root : ${PROJECT_ROOT}" >&2
         echo "  CPU Arch     : ${ENV_CPU_ARCH}" >&2
         echo "  Shell        : ${ENV_SHELL}" >&2

@@ -13,7 +13,7 @@ fi
 _SUMMARY_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Installer Summary Output
+# Forge - Installer Summary Output
 # File: installer/summary.sh
 # Purpose: Formats and displays the pre-installation environment summary and
 #          the post-installation completion report. Uses the existing logger
@@ -140,12 +140,14 @@ summary::print_final() {
     log::step "Next Steps"
     printf "  1. Log out and select Hyprland from your display manager, or run:\n" >&2
     printf "        Hyprland\n\n" >&2
-    printf "  2. Change your wallpaper (this also regenerates your color scheme):\n" >&2
+    printf "  2. Change your wallpaper (this also generates your color scheme):\n" >&2
     printf "        bash %s/scripts/set-wallpaper.sh /path/to/image\n\n" "${PROJECT_ROOT:-~/.config/forge}" >&2
     printf "  3. Set fish as your default shell:\n" >&2
     printf "        chsh -s \$(which fish)\n\n" >&2
-    printf "  4. Launch Neovim once to finish plugin installation:\n" >&2
-    printf "        nvim\n\n" >&2
+    printf "  4. Install optional tools (editor, git UI, browser):\n" >&2
+    printf "        ./install.sh --module editor/nvim\n" >&2
+    printf "        ./install.sh --module workspace/git\n" >&2
+    printf "        ./install.sh --module browser/firefox\n\n" >&2
     printf "\n" >&2
 }
 

@@ -19,7 +19,7 @@ fi
 _COLORS_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Terminal Color Management Library
+# Forge - Terminal Color Management Library
 # File: lib/colors.sh
 # Purpose: Provides terminal color support detection and initialization.
 #          Highly portable, independent, and compliant with the NO_COLOR standard.

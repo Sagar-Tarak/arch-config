@@ -13,7 +13,7 @@ fi
 _ARGS_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - CLI Argument Parser
+# Forge - CLI Argument Parser
 # File: installer/args.sh
 # Purpose: Parses install.sh CLI flags into exported global variables.
 #          Prints usage on unknown arguments and exits with code 2.
@@ -158,10 +158,10 @@ EOF
 # @exit 0 Always
 args::print_help() {
     if declare -f colors::supports_color &>/dev/null && colors::supports_color; then
-        printf "%sArch Linux Configuration Framework%s  v%s\n" \
+        printf "%sForge%s  v%s\n" \
             "${BOLD_WHITE:-}" "${RESET:-}" "${VERSION:-0.0.0}"
     else
-        printf "Arch Linux Configuration Framework  v%s\n" "${VERSION:-0.0.0}"
+        printf "Forge  v%s\n" "${VERSION:-0.0.0}"
     fi
     echo ""
     args::print_usage

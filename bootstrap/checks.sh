@@ -13,7 +13,7 @@ fi
 _CHECKS_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Pre-flight Validation Library
+# Forge - Pre-flight Validation Library
 # File: bootstrap/checks.sh
 # Purpose: Reusable validation functions that gate the installer from running
 #          in an unsupported or unprepared environment. Every function returns
@@ -276,6 +276,20 @@ checks::check_hyprland() {
     return 1
 }
 
+# @description Verifies git is available. Required to bootstrap the AUR helper.
+#              git is part of the archinstall base.
+# @noargs
+# @exit 0 if git is in PATH, 1 otherwise
+checks::check_git() {
+    if command -v git &>/dev/null; then
+        log::debug "Git check passed: $(git --version 2>/dev/null || echo 'found')" "CHECKS"
+        return 0
+    fi
+    log::error "git is required but not found in PATH." "CHECKS"
+    log::error "Install it: sudo pacman -S git" "CHECKS"
+    return 1
+}
+
 # @description Verifies makepkg is available. Required to build AUR packages.
 #              makepkg is part of base-devel, which archinstall provides.
 # @noargs
@@ -330,6 +344,7 @@ checks::run_all() {
     _checks::run_one "OS is Arch Linux"         checks::check_arch             || overall=1
     _checks::run_one "Wayland session active"   checks::check_wayland          || overall=1
     _checks::run_one "Hyprland is installed"    checks::check_hyprland         || overall=1
+    _checks::run_one "Git available"            checks::check_git              || overall=1
     _checks::run_one "Build tools (base-devel)" checks::check_build_tools      || overall=1
     _checks::run_one "Internet connectivity"    checks::check_internet         || overall=1
     _checks::run_one "Disk space (>= 10 GiB)"  checks::check_disk_space        || overall=1

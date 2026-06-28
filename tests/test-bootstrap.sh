@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - bootstrap.sh Unit Test Suite
+# Forge - bootstrap.sh Unit Test Suite
 # File: tests/test-bootstrap.sh
 # Purpose: Verifies that bootstrap/bootstrap.sh correctly orchestrates the full
 #          bootstrap sequence: sourcing libs, loading variables, detecting the

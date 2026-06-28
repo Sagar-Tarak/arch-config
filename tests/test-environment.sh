@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - environment.sh Unit Test Suite
+# Forge - environment.sh Unit Test Suite
 # File: tests/test-environment.sh
 # Purpose: Verifies that each environment detection helper function returns
 #          sensible, non-empty results and that environment::detect correctly

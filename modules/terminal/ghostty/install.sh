@@ -10,6 +10,11 @@ _MODULE_GHOSTTY_INSTALL_INCLUDED=1
 ghostty::install() {
     log::step "Ghostty" "GHOSTTY"
 
+    if [[ "${FORGE_AUR_AVAILABLE:-true}" == "false" ]]; then
+        log::warn "Skipped: AUR unavailable (paru/yay could not be bootstrapped)." "GHOSTTY"
+        return 3
+    fi
+
     local -a _pkgs=( ghostty )
 
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then

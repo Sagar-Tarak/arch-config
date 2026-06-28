@@ -6,7 +6,7 @@ if [[ -n "${_STATE_SH_INCLUDED:-}" ]]; then return 0; fi
 _STATE_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - State Management Library
+# Forge - State Management Library
 # File: lib/state.sh
 # Purpose: Manages persistent framework state via JSON metadata files under
 #          RUNTIME_DIR. Uses jq when available; falls back to python3, then

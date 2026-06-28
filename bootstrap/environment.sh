@@ -13,7 +13,7 @@ fi
 _ENVIRONMENT_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Environment Detection Library
+# Forge - Environment Detection Library
 # File: bootstrap/environment.sh
 # Purpose: Provides pure detection helper functions for the host environment.
 #          Exposes query functions only — no installation or mutation logic.

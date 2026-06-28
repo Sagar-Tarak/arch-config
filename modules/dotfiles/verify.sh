@@ -19,25 +19,31 @@ dotfiles::verify() {
     local failed=0
     dotfiles::verify_links "${DOTFILES_DIR}" "${HOME}/.config" || failed=1
 
-    # Verify critical generated color files exist (created by matugen, not deployment)
-    local -a _colors=(
-        "${HOME}/.config/hypr/colors.conf"
-        "${HOME}/.config/waybar/colors.css"
-        "${HOME}/.config/rofi/colors.rasi"
-        "${HOME}/.config/swaync/colors.css"
-        "${HOME}/.config/hyprlock/colors.conf"
-        "${HOME}/.config/ghostty/colors"
-        "${HOME}/.config/fish/conf.d/colors.fish"
-    )
+    # Verify generated color files only when matugen is installed.
+    # These files are created by matugen at first wallpaper set — not by deployment.
+    if ! command -v matugen &>/dev/null; then
+        log::warn "matugen not installed — skipping generated color file verification." "DOTFILES"
+        log::warn "  Install AUR packages and re-run to verify color generation." "DOTFILES"
+    else
+        local -a _colors=(
+            "${HOME}/.config/hypr/colors.conf"
+            "${HOME}/.config/waybar/colors.css"
+            "${HOME}/.config/rofi/colors.rasi"
+            "${HOME}/.config/swaync/colors.css"
+            "${HOME}/.config/hyprlock/colors.conf"
+            "${HOME}/.config/ghostty/colors"
+            "${HOME}/.config/fish/conf.d/colors.fish"
+        )
 
-    local color_file
-    for color_file in "${_colors[@]}"; do
-        if [[ ! -f "${color_file}" ]]; then
-            log::error "Generated color file missing: ${color_file}" "DOTFILES"
-            log::error "  → Run: matugen image ~/Pictures/Wallpapers/current.jpg" "DOTFILES"
-            failed=1
-        fi
-    done
+        local color_file
+        for color_file in "${_colors[@]}"; do
+            if [[ ! -f "${color_file}" ]]; then
+                log::error "Generated color file missing: ${color_file}" "DOTFILES"
+                log::error "  → Run: matugen image ~/Pictures/Wallpapers/current.jpg" "DOTFILES"
+                failed=1
+            fi
+        done
+    fi
 
     [[ "${failed}" -eq 0 ]]
 }

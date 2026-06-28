@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - variables.sh Unit Test Suite
+# Forge - variables.sh Unit Test Suite
 # File: tests/test-variables.sh
 # Purpose: Verifies that bootstrap/variables.sh exports all expected global
 #          variables, computes paths dynamically from PROJECT_ROOT, and is

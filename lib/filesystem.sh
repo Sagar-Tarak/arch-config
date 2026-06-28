@@ -19,7 +19,7 @@ fi
 _FILESYSTEM_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Filesystem Utilities Library
+# Forge - Filesystem Utilities Library
 # File: lib/filesystem.sh
 # Purpose: Idempotent filesystem manipulation helpers with safety checks and backups.
 # Dependencies: lib/logger.sh

@@ -12,6 +12,11 @@ _MODULE_MATUGEN_INSTALL_INCLUDED=1
 matugen::install() {
     log::step "Matugen" "MATUGEN"
 
+    if [[ "${FORGE_AUR_AVAILABLE:-true}" == "false" ]]; then
+        log::warn "Skipped: AUR unavailable (paru/yay could not be bootstrapped)." "MATUGEN"
+        return 3
+    fi
+
     if [[ "${ARCH_CFG_DRY_RUN:-false}" == "true" ]]; then
         log::info "[DRY-RUN] Would install: matugen-bin (AUR)" "MATUGEN"
         log::info "[DRY-RUN] Would create: ~/Pictures/Wallpapers/" "MATUGEN"

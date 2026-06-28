@@ -13,7 +13,7 @@ fi
 _VARIABLES_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Global Variables
+# Forge - Global Variables
 # File: bootstrap/variables.sh
 # Purpose: Defines and exports all global path and configuration variables for
 #          the framework. Every path is computed dynamically from PROJECT_ROOT
@@ -68,19 +68,19 @@ variables::load() {
     export DOTFILES_DIR="${PROJECT_ROOT}/dotfiles"
 
     # Runtime cache (temporary data across runs)
-    export CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/arch-config"
+    export CACHE_DIR="${XDG_CACHE_HOME:-${HOME}/.cache}/forge"
 
     # Backup storage for files replaced during installation
-    export BACKUP_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/arch-config/backups"
+    export BACKUP_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/forge/backups"
 
     # Log output directory
-    export LOG_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/arch-config/logs"
+    export LOG_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}/forge/logs"
 
     # --------------------------------------------------------------------------
     # Runtime home — all persistent framework state lives under this directory.
     # Uses XDG_DATA_HOME per the XDG Base Directory Specification.
     # --------------------------------------------------------------------------
-    export RUNTIME_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/arch-config"
+    export RUNTIME_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}/forge"
 
     # Runtime subdirectories
     export RUNTIME_BACKUPS_DIR="${RUNTIME_DIR}/backups"

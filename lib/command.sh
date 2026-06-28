@@ -19,7 +19,7 @@ fi
 _COMMAND_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Command Execution Library
+# Forge - Command Execution Library
 # File: lib/command.sh
 # Purpose: Provides mechanisms to run external commands safely, quietly, or
 #          with failure checks. Keeps signatures future-ready for dry-run,

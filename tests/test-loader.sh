@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - loader.sh Unit Test Suite
+# Forge - loader.sh Unit Test Suite
 # File: tests/test-loader.sh
 # Purpose: Verifies that bootstrap/loader.sh correctly resolves the lib/
 #          directory, sources all six core libraries, and is safe to load

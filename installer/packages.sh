@@ -13,7 +13,7 @@ fi
 _PACKAGES_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Package List Parser
+# Forge - Package List Parser
 # File: installer/packages.sh
 # Purpose: Reads and validates the three package list files (pacman, AUR,
 #          flatpak), strips comments and blank lines, and provides display

@@ -13,7 +13,7 @@ fi
 _FLOW_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Installer Flow Orchestrator
+# Forge - Installer Flow Orchestrator
 # File: installer/flow.sh
 # Purpose: Implements the top-level installer pipeline. Dispatches early-exit
 #          paths (--help, --version, --list-modules, --verify) and runs the
@@ -108,7 +108,13 @@ _flow::run_full() {
 
     # 4b. Bootstrap AUR helper (before any modules that need it)
     log::step "AUR Helper"
-    aur::bootstrap || log::warn "AUR bootstrap failed — AUR packages will be skipped" "FLOW"
+    if aur::bootstrap; then
+        export FORGE_AUR_AVAILABLE=true
+    else
+        export FORGE_AUR_AVAILABLE=false
+        log::warn "AUR bootstrap failed — AUR-only modules will be skipped." "FLOW"
+        log::warn "Install git and base-devel, then re-run to get AUR packages." "FLOW"
+    fi
 
     # 5. Execute modules
     log::step "Installing Modules"
@@ -153,14 +159,25 @@ _flow::execute_modules() {
 
     local name
     local failed=0
+    local skipped=0
     for name in "${targets[@]}"; do
         log::info "▶ Installing module: ${name}" "FLOW"
-        if ! module::install "${name}"; then
-            log::error "Module '${name}' installation failed." "FLOW"
-            failed=$(( failed + 1 ))
-        fi
+        local _rc=0
+        module::install "${name}" || _rc=$?
+        case "${_rc}" in
+            0)  ;;  # success
+            3)  log::warn "Module '${name}' skipped (dependency unavailable)." "FLOW"
+                skipped=$(( skipped + 1 ))
+                ;;
+            *)  log::error "Module '${name}' installation failed (exit ${_rc})." "FLOW"
+                failed=$(( failed + 1 ))
+                ;;
+        esac
     done
 
+    if [[ "${skipped}" -gt 0 ]]; then
+        log::warn "${skipped} module(s) skipped." "FLOW"
+    fi
     if [[ "${failed}" -gt 0 ]]; then
         log::warn "${failed} module(s) reported installation failures." "FLOW"
         return 1

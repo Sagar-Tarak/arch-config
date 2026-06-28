@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - colors.sh Unit Test Suite
+# Forge - colors.sh Unit Test Suite
 # File: tests/test-colors.sh
 # Purpose: Demonstrates and verifies terminal color capabilities detection
 #          and ANSI constant controls. Does not modify the host system.

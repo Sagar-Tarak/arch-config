@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - filesystem.sh Unit Test Suite
+# Forge - filesystem.sh Unit Test Suite
 # File: tests/test-filesystem.sh
 # Purpose: Verifies filesystem manipulation functions (ensure, copy, symlink,
 #          backup, restore, remove) in an isolated, temporary environment.

@@ -19,7 +19,7 @@ fi
 _LOGGER_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Terminal Logging Library
+# Forge - Terminal Logging Library
 # File: lib/logger.sh
 # Purpose: Provides clean, structured, and colored logging functions for terminals.
 #          Integrates with lib/colors.sh to automatically support colorless environments.

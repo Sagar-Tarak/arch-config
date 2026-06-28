@@ -12,7 +12,7 @@ if [[ -z "${SCRIPT_DIR:-}" ]]; then
 fi
 
 # ==============================================================================
-# Arch Linux Configuration Framework - command.sh Unit Test Suite
+# Forge - command.sh Unit Test Suite
 # File: tests/test-command.sh
 # Purpose: Verifies execution helpers, command availability queries, error exits,
 #          and quiet log-capturing features.

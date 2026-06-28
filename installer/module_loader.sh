@@ -13,7 +13,7 @@ fi
 _MODULE_LOADER_SH_INCLUDED=1
 
 # ==============================================================================
-# Arch Linux Configuration Framework - Module Loader
+# Forge - Module Loader
 # File: installer/module_loader.sh
 # Purpose: Dynamically discovers, loads, and dispatches lifecycle calls for
 #          framework modules. Prevents duplicate loading, resolves declared
